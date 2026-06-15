@@ -28,54 +28,16 @@
             border-radius: 28px;
             padding: 16px 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
         }
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
-        h1 {
-            font-size: 1.3rem;
-            color: #1e3c72;
-            border-left: 5px solid #1e88e5;
-            padding-left: 12px;
-            margin: 0;
-        }
-        .top-buttons {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        .lang-switch {
-            background: #eef2fa;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        /* 白色小圆点按钮 - 数据面板（隐藏） */
-        .admin-dot {
-            background: white;
-            border: 1px solid #e8e8e8;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            padding: 0;
-            font-size: 0;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.25;
-            transition: opacity 0.2s;
-        }
-        .admin-dot:hover {
-            opacity: 0.6;
-        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        h1 { font-size: 1.3rem; color: #1e3c72; border-left: 5px solid #1e88e5; padding-left: 12px; margin: 0; }
+        .left-buttons { display: flex; gap: 8px; align-items: center; }
+        .right-buttons { display: flex; gap: 8px; align-items: center; }
+        .lang-switch { background: #eef2fa; border: none; padding: 4px 12px; border-radius: 30px; font-size: 0.85rem; cursor: pointer; }
+        .export-local-btn { background: #6c757d; border: none; padding: 4px 12px; border-radius: 30px; font-size: 0.85rem; cursor: pointer; color: white; }
+        .export-local-btn:hover { background: #5a6268; }
+        .admin-dot { background: white; border: 1px solid #e8e8e8; border-radius: 50%; width: 20px; height: 20px; padding: 0; font-size: 0; cursor: pointer; opacity: 0.25; transition: opacity 0.2s; }
+        .admin-dot:hover { opacity: 0.6; }
         .info-panel {
             background: #eef2fa;
             border-radius: 20px;
@@ -85,306 +47,64 @@
             flex-wrap: wrap;
             gap: 12px;
         }
-        .info-group {
-            flex: 1 1 150px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .info-group label {
-            font-size: 0.7rem;
-            font-weight: bold;
-            color: #1e3c72;
-        }
-        .info-group input, .info-group select, .info-group textarea {
-            padding: 6px 8px;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
-            font-size: 0.85rem;
-            background: white;
-        }
-        .acro-panel {
-            background: #e8f0fe;
-            border-radius: 20px;
-            padding: 12px 16px;
-            margin-top: 20px;
-            border: 1px solid #b8e1fc;
-        }
-        .acro-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .acro-list {
-            margin-bottom: 12px;
-        }
-        .acro-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 8px;
-            background: white;
-            padding: 6px 10px;
-            border-radius: 16px;
-        }
-        .acro-row input {
-            width: 130px;
-            font-family: monospace;
-        }
-        .acro-row .acro-code.error {
-            border: 2px solid red;
-            background-color: #ffe6e6;
-        }
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-            background: #f8f9fc;
-            padding: 10px 16px;
-            border-radius: 28px;
-        }
-        .total-score {
-            background: #1e3c72;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            white-space: normal;
-            word-break: break-word;
-            text-align: center;
-            flex: 1;
-        }
-        button {
-            background: #1e88e5;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .info-group { flex: 1 1 140px; display: flex; flex-direction: column; gap: 4px; }
+        .info-group label { font-size: 0.7rem; font-weight: bold; color: #1e3c72; }
+        .info-group input, .info-group select, .info-group textarea { padding: 6px 8px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: white; }
+        .acro-panel { background: #e8f0fe; border-radius: 20px; padding: 12px 16px; margin-top: 20px; border: 1px solid #b8e1fc; }
+        .acro-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .acro-list { margin-bottom: 12px; }
+        .acro-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; background: white; padding: 6px 10px; border-radius: 16px; flex-wrap: wrap; }
+        .acro-row input { width: 130px; font-family: monospace; }
+        .acro-row .acro-code.error { border: 2px solid red; background-color: #ffe6e6; }
+        .action-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; background: #f8f9fc; padding: 10px 16px; border-radius: 28px; }
+        .total-score { background: #1e3c72; color: white; padding: 6px 14px; border-radius: 40px; font-size: 0.95rem; font-weight: bold; text-align: center; flex: 1; }
+        button { background: #1e88e5; color: white; border: none; padding: 6px 14px; border-radius: 40px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
         button:hover { background: #0b5e9e; }
         button.danger { background: #dc3545; }
-        button.danger:hover { background: #b02a37; }
-        button.export-btn {
-            background: #6c757d;
-        }
-        button.export-btn:hover { background: #5a6268; }
-        .two-columns {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .left-panel {
-            flex: 2;
-            min-width: 280px;
-        }
-        .right-panel {
-            flex: 1.2;
-            min-width: 280px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .risk-card, .history-card {
-            background: #f8f9fc;
-            border-radius: 20px;
-            padding: 14px;
-            border: 1px solid #e2e8f0;
-        }
-        .seq-card {
-            background: #f9fafc;
-            border-radius: 18px;
-            padding: 12px;
-            margin-bottom: 16px;
-            border: 1px solid #e2e8f0;
-        }
-        .seq-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
-        .seq-title {
-            font-weight: bold;
-            background: #1e88e5;
-            color: white;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-        }
-        .seq-score {
-            font-size: 0.85rem;
-            font-weight: bold;
-            background: #e8f0fe;
-            padding: 2px 12px;
-            border-radius: 30px;
-            color: #0b5e9e;
-        }
-        .seq-input {
-            width: 100%;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 16px;
-            background: white;
-        }
-        .check-results {
-            margin-top: 8px;
-            background: #fff9e6;
-            padding: 6px 10px;
-            border-radius: 14px;
-            font-size: 0.7rem;
-            border-left: 3px solid #f7b32b;
-        }
-        .code-values {
-            margin-top: 6px;
-            background: #eef2fa;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-family: monospace;
-            word-break: break-all;
-        }
-        .risk-report {
-            max-height: 400px;
-            overflow-y: auto;
-            font-size: 0.75rem;
-        }
-        .risk-item {
-            margin-bottom: 10px;
-            border-left: 3px solid #f0ad4e;
-            padding-left: 10px;
-        }
-        .risk-code {
-            font-weight: bold;
-            background: #ffe0b3;
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 12px;
-            margin-right: 6px;
-        }
-        hr { margin: 12px 0; }
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.7rem;
-        }
-        .history-table th, .history-table td {
-            border-bottom: 1px solid #dce4ec;
-            padding: 6px 2px;
-            text-align: left;
-        }
-        .version, .rules-ref {
-            text-align: right;
-            font-size: 0.65rem;
-            color: #aaa;
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px solid #e2e8f0;
-        }
-        .privacy-link {
-            text-align: right;
-            font-size: 0.7rem;
-            margin-top: 8px;
-        }
-        .privacy-link a {
-            color: #1e88e5;
-            text-decoration: none;
-        }
-        .help-text {
-            background: #fef5e7;
-            border-radius: 16px;
-            padding: 10px 16px;
-            margin-bottom: 16px;
-            font-size: 0.75rem;
-            border-left: 4px solid #f0ad4e;
-        }
-        .modal, .language-modal, .admin-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 28px;
-            max-width: 90%;
-            width: 900px;
-            max-height: 80%;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .lang-option {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .lang-option button {
-            padding: 12px 24px;
-            font-size: 1.2rem;
-            min-width: 120px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: #f8f9fc;
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1e88e5;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 5px;
-        }
-        .admin-table {
-            width: 100%;
-            font-size: 0.7rem;
-            border-collapse: collapse;
-        }
-        .admin-table th, .admin-table td {
-            border: 1px solid #ddd;
-            padding: 6px;
-            text-align: left;
-        }
-        .admin-table th {
-            background: #f0f4f8;
-        }
+        .two-columns { display: flex; gap: 20px; flex-wrap: wrap; }
+        .left-panel { flex: 2; min-width: 280px; }
+        .right-panel { flex: 1.2; min-width: 280px; display: flex; flex-direction: column; gap: 20px; }
+        .risk-card, .history-card { background: #f8f9fc; border-radius: 20px; padding: 14px; border: 1px solid #e2e8f0; }
+        .seq-card { background: #f9fafc; border-radius: 18px; padding: 12px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .seq-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; }
+        .seq-title { font-weight: bold; background: #1e88e5; color: white; padding: 2px 12px; border-radius: 30px; font-size: 0.85rem; }
+        .seq-score { font-size: 0.85rem; font-weight: bold; background: #e8f0fe; padding: 2px 12px; border-radius: 30px; color: #0b5e9e; }
+        .seq-input { width: 100%; padding: 10px; font-family: monospace; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 16px; background: white; }
+        .check-results { margin-top: 8px; background: #fff9e6; padding: 6px 10px; border-radius: 14px; font-size: 0.7rem; border-left: 3px solid #f7b32b; }
+        .code-values { margin-top: 6px; background: #eef2fa; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-family: monospace; word-break: break-all; }
+        .risk-report { max-height: 500px; overflow-y: auto; font-size: 0.75rem; }
+        .risk-item { margin-bottom: 12px; border-left: 3px solid #f0ad4e; padding-left: 12px; }
+        .risk-code { font-weight: bold; background: #ffe0b3; display: inline-block; padding: 2px 8px; border-radius: 16px; margin-right: 8px; }
+        .risk-detail { margin-top: 4px; color: #856404; font-size: 0.7rem; white-space: pre-line; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .history-table th, .history-table td { border-bottom: 1px solid #dce4ec; padding: 6px 2px; text-align: left; }
+        .version, .rules-ref { text-align: right; font-size: 0.65rem; color: #aaa; margin-top: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
+        .privacy-link { text-align: right; font-size: 0.7rem; margin-top: 8px; }
+        .privacy-link a { color: #1e88e5; text-decoration: none; }
+        .help-text { background: #fef5e7; border-radius: 16px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.75rem; border-left: 4px solid #f0ad4e; }
+        .help-text ol { margin: 5px 0 0 20px; padding: 0; }
+        .help-text li { margin: 3px 0; }
+        .modal, .language-modal, .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 28px; max-width: 90%; width: 1000px; max-height: 80%; padding: 20px; overflow-y: auto; }
+        .lang-option { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
+        .lang-option button { padding: 12px 24px; font-size: 1.2rem; min-width: 120px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #f8f9fc; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #1e88e5; }
+        .stat-label { font-size: 0.75rem; color: #666; margin-top: 5px; }
+        .admin-table { width: 100%; font-size: 0.7rem; border-collapse: collapse; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        .feedback-toast { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 8px 16px; border-radius: 30px; font-size: 0.85rem; z-index: 1100; animation: fadeOut 3s ease forwards; }
+        .error-toast { background: #dc3545; }
+        @keyframes fadeOut { 0% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); visibility: hidden; } }
         @media (max-width: 700px) {
             .container { padding: 12px 16px; }
             .action-bar { flex-direction: column; align-items: stretch; }
             .total-score { text-align: center; }
-            button { padding: 6px 12px; font-size: 0.75rem; }
             .seq-input { font-size: 16px; }
-            .acro-row { flex-wrap: wrap; }
             .modal-content { width: 95%; }
+            .header-top { flex-direction: column; align-items: stretch; gap: 10px; }
+            .left-buttons, .right-buttons { justify-content: center; }
         }
     </style>
 </head>
@@ -395,10 +115,10 @@
 <div id="languageModal" class="language-modal">
     <div class="modal-content">
         <h2>🌊 Artistic Swimming Calculator</h2>
-        <p style="margin: 15px 0; color: #666;">Select your language / 选择语言</p>
+        <p style="margin:15px 0; color:#666;">Select your language / 选择语言</p>
         <div class="lang-option">
-            <button id="selectEnglish" style="background: #1e88e5;">English</button>
-            <button id="selectChinese" style="background: #1e88e5;">中文</button>
+            <button id="selectEnglish" style="background:#1e88e5;">English</button>
+            <button id="selectChinese" style="background:#1e88e5;">中文</button>
         </div>
     </div>
 </div>
@@ -406,13 +126,12 @@
 <!-- 管理员数据面板模态框 -->
 <div id="adminModal" class="admin-modal">
     <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2>📊 云端用户数据统计面板</h2>
-            <button onclick="closeAdminModal()" style="background: #dc3545;">关闭</button>
+            <button onclick="closeAdminModal()" style="background:#dc3545;">关闭</button>
         </div>
-        <div id="adminStatsContent">
-            <p>加载中...</p>
-        </div>
+        <div id="adminStatsContent"><p>加载中...</p></div>
+        <button id="exportCloudDataBtn" style="margin-top:15px; background:#28a745;">📊 导出所有云端数据</button>
     </div>
 </div>
 
@@ -427,95 +146,119 @@
     try {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         supabaseEnabled = true;
-        console.log("✅ Supabase 已连接");
-    } catch(e) {
-        console.warn("Supabase 连接失败:", e);
+        console.log("✅ Supabase connected");
+    } catch(e) { 
+        console.warn("Supabase connection failed:", e); 
         supabaseEnabled = false;
     }
 
-    // ==================== 版本信息 ====================
-    const APP_VERSION = "v4.0.0";
+    const APP_VERSION = "v5.2.0 (Coach Card Export)";
     const RULES_REF = {
         fileName: "Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf",
         version: "V5.2, October 2025",
-        effective: "October 2025",
         link: "https://resources.fina.org/fina/document/2025/10/24/cbafa24c-437a-4242-87e7-0384651e3564/Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf"
     };
 
-    // ---------- 语言资源 ----------
+    // 语言资源
     const langResources = {
         en: {
             title: "Artistic Swimming Hybrid Calculator",
-            sub: "Difficulty Mapping + Rules Check + Risk Analysis",
-            name: "Athlete", event: "Competition", age: "Age Group", theme: "Theme", music: "Music Title", notes: "Notes",
-            discipline: "Discipline", ageCategory: "Age Category", soloWomen: "Women Solo", soloMen: "Men Solo", duetWomen: "Women Duet", mixedDuet: "Mixed Duet", teamTech: "Team Technical", teamFree: "Team Free", acro: "Acrobatic", combo: "Free Combination",
-            age12U: "12 & Under", ageYouth: "Youth", ageJunior: "Junior", ageSenior: "Senior",
+            sub: "Difficulty Mapping | Rules Check | Risk Analysis",
+            athlete: "Athlete Name", event: "Event Name", category: "Category", theme: "Theme", music: "Music Title", notes: "Notes",
+            preparedBy: "Prepared by", coachName: "Coach Name",
+            discipline: "Event Type", ageCategory: "Age Group", soloWomen: "Women Solo", soloMen: "Men Solo",
+            duetWomen: "Women Duet", mixedDuet: "Mixed Duet", teamTech: "Team Technical", teamFree: "Team Free",
+            acro: "Acrobatic Routine", combo: "Free Combination", age12U: "12 & Under", ageYouth: "Youth", ageJunior: "Junior", ageSenior: "Senior",
             hybrid: "Hybrid", calc: "Calculate", save: "Save to Local", export: "Export Local", risk: "Show Risks", suggestions: "Suggestions",
-            total: "Total Score", globalPass: "All 5 families covered", globalFail: "Missing: ",
-            hybridPass: "Click Calculate", unknownCode: "Unknown",
+            total: "Total Score", globalPass: "✓ All 5 families covered", globalFail: "✗ Missing families: ",
+            hybridPass: "Click Calculate to check", unknownCode: "Unknown code",
             noRecord: "No records", load: "Load", delete: "Delete", clearAll: "Clear All",
-            riskTitle: "Risk Analysis", riskEmpty: "Click 'Show Risks' first",
-            savePrompt: "Enter record name", clearConfirm: "Clear all records?",
+            riskTitle: "Risk Analysis", riskEmpty: "Click 'Show Risks' after calculation",
+            savePrompt: "Enter record name", clearConfirm: "Clear all local records?",
             action: "Actions", status: "Status", nameCol: "Name", totalCol: "Score",
-            historyTitle: "Saved Records", riskCardTitle: "Risk Analysis",
+            historyTitle: "Saved Local Records", riskCardTitle: "⚠️ Risk Analysis (Based on World Aquatics Rules)",
             codeValues: "Values: ", close: "Close",
             rulesRef: `Rules: ${RULES_REF.fileName} (${RULES_REF.version}) `,
             rulesLink: "Download PDF",
             privacyLink: "Privacy & Disclaimer",
             acroTitle: "Acrobatics",
             totalWithAcro: "Total (Hybrid + Acro)",
-            helpTitle: "How to use",
-            helpText: "Enter Hybrid codes (space separated). Acro codes auto-map to values. Click Calculate to get score.",
-            helpText2: "Mixed Duet: refer to official rules.",
+            helpTitle: "📖 How to Use",
+            helpText1: "Select Event Type and Age Group",
+            helpText2: "Enter Hybrid codes (space/comma separated, case insensitive)",
+            helpText3: "Enter Acrobatic codes if applicable",
+            helpText4: "Click 'Calculate' to get total difficulty score",
+            helpText5: "Click 'Show Risks' to see detailed execution requirements",
             warningCount: "Warning: Wrong hybrid count!",
             countOk: "Hybrid count OK",
-            exportSubmit: "Export All Local Records",
-            noDataExport: "No records to export. Please save some records first.",
-            adminPanel: "",
-            autoSaved: "",
-            saveToLocal: "Saved to local"
+            exportSubmit: "Export Local Records",
+            noDataExport: "No records to export",
+            saveToLocal: "Saved to local",
+            calcFeedback: "Calculation complete",
+            acroError: "Acro code not found",
+            exportCloud: "Export Cloud Data",
+            thrustRisk: "【Thrust】Min height 3.5 (above knees), rapid unroll, spins 180°-720° must descend gradually, drop of 2 height levels = Base Mark",
+            spinRisk: "【Spin】Min start height 3.5, SB-S2: entire rotation gradual, S3-S5: max one rotation per level, full rotation required",
+            twistRisk: "【Twist】Height constant, full rotation required, 180° no allowance, 360°+ 90° allowance, Split ≥90°",
+            airborneRisk: "【Airborne Weight】Min height 3.5, sustained ≥3 seconds, ascent/descent min 2 height levels",
+            flexibilityRisk: "【Flexibility】Knight min height 5.5 (kneecap visible), Split ≥90°, rotation gradual",
+            connectionRisk: "【Connection】Constant height, full rotation, same connections back-to-back must disconnect",
+            defaultRisk: "Please consult World Aquatics rules Appendix 6 V5.2"
         },
         zh: {
             title: "花样游泳 Hybrid 难度计算器",
-            sub: "难度映射 + 规则检查 + 风险提示",
-            name: "姓名", event: "比赛名称", age: "年龄组", theme: "主题", music: "音乐名称", notes: "备注",
-            discipline: "项目", ageCategory: "年龄组别", soloWomen: "女子单人", soloMen: "男子单人", duetWomen: "女子双人", mixedDuet: "混合双人", teamTech: "集体技术", teamFree: "集体自由", acro: "技巧自选", combo: "自由组合",
-            age12U: "12岁及以下", ageYouth: "青年组", ageJunior: "少年组", ageSenior: "成年组",
+            sub: "难度映射 | 规则检查 | 风险分析 | v5.2",
+            athlete: "运动员姓名", event: "比赛名称", category: "年龄组别", theme: "主题", music: "音乐名称", notes: "备注",
+            preparedBy: "编排人", coachName: "教练姓名",
+            discipline: "项目类型", ageCategory: "年龄组", soloWomen: "女子单人", soloMen: "男子单人",
+            duetWomen: "女子双人", mixedDuet: "混合双人", teamTech: "集体技术", teamFree: "集体自由",
+            acro: "技巧自选", combo: "自由组合", age12U: "12岁及以下", ageYouth: "青年组", ageJunior: "少年组", ageSenior: "成年组",
             hybrid: "组合", calc: "计算", save: "保存到本地", export: "导出本地", risk: "显示风险", suggestions: "设计建议",
-            total: "总难度分", globalPass: "覆盖全部5个家族", globalFail: "缺少: ",
-            hybridPass: "点击计算", unknownCode: "未知",
+            total: "总难度分", globalPass: "✓ 覆盖全部5个家族", globalFail: "✗ 缺少家族: ",
+            hybridPass: "点击「计算」检查", unknownCode: "未知代码",
             noRecord: "暂无记录", load: "加载", delete: "删除", clearAll: "清空所有",
-            riskTitle: "风险分析", riskEmpty: "请先点击显示风险",
-            savePrompt: "请输入记录名称", clearConfirm: "确定清空所有记录？",
+            riskTitle: "风险分析", riskEmpty: "请先点击「计算」，再点击「显示风险」",
+            savePrompt: "请输入记录名称", clearConfirm: "确定清空所有本地记录？",
             action: "操作", status: "状态", nameCol: "名称", totalCol: "总分",
-            historyTitle: "保存记录", riskCardTitle: "风险分析",
+            historyTitle: "本地保存记录", riskCardTitle: "⚠️ 风险分析 (基于世界泳联规则)",
             codeValues: "分值：", close: "关闭",
             rulesRef: `规则：${RULES_REF.fileName} (${RULES_REF.version}) `,
             rulesLink: "下载 PDF",
             privacyLink: "隐私与免责",
             acroTitle: "托举动作",
             totalWithAcro: "总分（Hybrid + 托举）",
-            helpTitle: "使用说明",
-            helpText: "输入Hybrid代码（空格分隔）。托举代码自动映射分值。点击「计算」获得难度分。",
-            helpText2: "混合双人请参考官方规则。",
-            warningCount: "警告：Hybrid数量不正确！",
-            countOk: "Hybrid数量正确",
+            helpTitle: "📖 使用说明",
+            helpText1: "选择项目类型和年龄组",
+            helpText2: "输入Hybrid代码（空格或逗号分隔，不区分大小写）",
+            helpText3: "如有托举动作，输入托举代码",
+            helpText4: "点击「计算」获得总难度分",
+            helpText5: "点击「显示风险」查看每个动作的官方执行要求",
+            warningCount: "⚠️ Hybrid数量不正确！",
+            countOk: "✓ Hybrid数量正确",
             exportSubmit: "导出本地记录",
-            noDataExport: "暂无记录可导出，请先保存一些记录。",
-            adminPanel: "",
-            autoSaved: "",
-            saveToLocal: "已保存到本地"
+            noDataExport: "暂无记录可导出",
+            saveToLocal: "已保存到本地",
+            calcFeedback: "✅ 计算完成",
+            acroError: "托举代码未找到",
+            exportCloud: "📊 导出云端数据",
+            thrustRisk: "【Thrust 执行要点】最低高度必须达到3.5（膝盖以上可见），否则Base Mark；推起动作必须快速伸展，不可呈「铰链式」抬起；旋转180°-720°必须全程逐渐下降；高度下降两个级别（如从6.5降到4.5）= Base Mark",
+            spinRisk: "【Spin 执行要点】最低起始高度3.5；SB-S2级别：全程必须逐渐下降；S3-S5级别：每个高度级别最多允许一圈；旋转度数必须完整，不足则Base Mark；上升/下降必须改变至少两个高度级别",
+            twistRisk: "【Twist 执行要点】旋转时身体高度必须保持恒定；旋转度数必须完整，不足则Base Mark；180°旋转没有容差，少于180° = Base Mark；360°以上旋转：90°容差，少于则Base Mark；Split角度必须≥90°",
+            airborneRisk: "【Airborne Weight 执行要点】最低高度必须达到3.5；「持续高度」动作必须稳定保持≥3秒；上升/下降必须改变至少两个高度级别；A8 Rocking：经过平衡「V」型位置 = Base Mark",
+            flexibilityRisk: "【Flexibility 执行要点】Knight位置：最低高度5.5（膝盖必须可见）；Knight垂直方向：最多偏离30°；Split位置：必须至少90°；F6c/F8a：旋转必须渐进",
+            connectionRisk: "【Connection 执行要点】连接旋转必须在恒定高度完成；旋转不能在上/下降过程中开始或结束；高度下降两个级别 = Base Mark；相同连接背靠背：必须有断开",
+            defaultRisk: "请对照《世界泳联艺术游泳规则手册》Appendix 6 V5.2确认该动作的完整执行标准"
         }
     };
     
     let currentLang = 'zh';
     function t(key) { return langResources[currentLang][key] || key; }
 
-    // ---------- 难度映射表 ----------
+    // 难度映射表（大写）
     const difficultyMap = {
-        "TB":0.30,"T1":0.45,"T2a":0.50,"T2b":0.50,"T3a":0.65,"T3b":0.65,"T3c":0.65,"T3d":0.65,
-        "T4a":0.80,"T4b":0.80,"T4c":0.80,"T4d":0.80,"T4e":0.80,"T5a":0.90,"T5b":0.90,"T5c":0.90,"T5d":0.90,"T5e":0.90,
-        "T6a":1.10,"T6b":1.10,"T6c":1.10,"T7":1.50,"T8":1.70,"T9a":2.00,"T9b":2.00,
+        "TB":0.30,"T1":0.45,"T2A":0.50,"T2B":0.50,"T3A":0.65,"T3B":0.65,"T3C":0.65,"T3D":0.65,
+        "T4A":0.80,"T4B":0.80,"T4C":0.80,"T4D":0.80,"T4E":0.80,"T5A":0.90,"T5B":0.90,"T5C":0.90,"T5D":0.90,"T5E":0.90,
+        "T6A":1.10,"T6B":1.10,"T6C":1.10,"T7":1.50,"T8":1.70,"T9A":2.00,"T9B":2.00,
         "SB":0.15,"SCB":0.35,"SCDB":0.40,"S1":0.35,"SC1":0.80,"SCD1":0.85,"S2":0.75,"SC2":1.60,"SCD2":1.65,
         "S3":1.15,"SC3":2.40,"SCD3":2.45,"S4":1.55,"SC4":3.20,"SCD4":3.25,"S5":1.95,"SC5":4.00,"SCD5":4.05,
         "S6":2.35,"SC6":4.80,"SCD6":4.85,"S7":2.75,"S8":3.15,"S9":3.55,"S10":3.95,
@@ -523,30 +266,37 @@
         "R2":0.40,"1R2":0.75,"2R2":0.95,"RD2":1.05,"RU2":1.15,"R3":0.60,"1R3":1.15,"2R3":1.45,"RU3":1.75,
         "R4":0.80,"1R4":1.55,"2R4":1.95,"RD4":2.15,"RU4":2.35,"1R5":1.95,"2R5":2.45,"RU5":2.95,
         "1R6":2.35,"2R6":2.95,"RD6":3.35,"RU6":3.55,"2R7":3.45,"RU7":4.15,"2R8":3.95,"RU8":4.75,"2R9":4.45,"RU9":5.35,"2R10":4.95,"RU10":5.95,
-        "AB":0.05,"A1a":0.10,"A1b":0.10,"A1c":0.10,"A1d":0.10,"A2a":0.15,"A2b":0.15,"A3a":0.20,"A3b":0.20,"A3c":0.20,
-        "A4a":0.45,"A4b":0.45,"A5":0.65,"A6":1.15,"A7":1.45,"A8":1.65,
-        "FB":0.05,"F1a":0.10,"F1b":0.10,"F1c":0.10,"F2a":0.20,"F2b":0.20,"F2c":0.20,"F3a":0.30,"F3b":0.30,"F3c":0.30,
-        "F4a":0.40,"F4b":0.40,"F4c":0.40,"F4d":0.40,"F4e":0.40,"F4f":0.40,"F5a":0.50,"F5b":0.50,"F5c":0.50,
-        "F6a":0.65,"F6b":0.65,"F6c":0.65,"F6d":0.65,"F7":0.75,"F8a":0.90,"F8b":0.90,"F9":1.00,"F10":1.30,
-        "CB":0.10,"CB+":0.20,"C1a":0.20,"C1b":0.20,"C1a+":0.30,"C1b+":0.30,"C2a":0.30,"C2b":0.30,"C2c":0.30,
-        "C2a+":0.40,"C2b+":0.40,"C2c+":0.40,"C3":0.40,"C3+":0.50,"C4":0.50,"C4+":0.60,"C5":1.00,"C5+":1.10,
-        "C6a":1.25,"C6b":1.25,"C6a+":1.35,"C6b+":1.35,"C7":1.50,"C7+":1.60
+        "AB":0.05,"A1A":0.10,"A1B":0.10,"A1C":0.10,"A1D":0.10,"A2A":0.15,"A2B":0.15,"A3A":0.20,"A3B":0.20,"A3C":0.20,
+        "A4A":0.45,"A4B":0.45,"A5":0.65,"A6":1.15,"A7":1.45,"A8":1.65,
+        "FB":0.05,"F1A":0.10,"F1B":0.10,"F1C":0.10,"F2A":0.20,"F2B":0.20,"F2C":0.20,"F3A":0.30,"F3B":0.30,"F3C":0.30,
+        "F4A":0.40,"F4B":0.40,"F4C":0.40,"F4D":0.40,"F4E":0.40,"F4F":0.40,"F5A":0.50,"F5B":0.50,"F5C":0.50,
+        "F6A":0.65,"F6B":0.65,"F6C":0.65,"F6D":0.65,"F7":0.75,"F8A":0.90,"F8B":0.90,"F9":1.00,"F10":1.30,
+        "CB":0.10,"CB+":0.20,"C1A":0.20,"C1B":0.20,"C1A+":0.30,"C1B+":0.30,"C2A":0.30,"C2B":0.30,"C2C":0.30,
+        "C2A+":0.40,"C2B+":0.40,"C2C+":0.40,"C3":0.40,"C3+":0.50,"C4":0.50,"C4+":0.60,"C5":1.00,"C5+":1.10,
+        "C6A":1.25,"C6B":1.25,"C6A+":1.35,"C6B+":1.35,"C7":1.50,"C7+":1.60
     };
     
     const acroMap = {
-        "L»":0.20,"L!»":0.30,"L":0.50,"Lf»":0.50,"L!f»":0.50,"L!":0.70,"Lf":0.70,"Lr0,5":0.90,"W":0.90,
-        "W»":0.90,"L!r1":1.10,"J":0.90,"Wd":1.10,"Js1F":2.10
+        "L»":0.20,"L!»":0.30,"L":0.50,"Lf»":0.50,"L!f»":0.50,"L!":0.70,"Lf":0.70,"Lr0,5":0.90,"L!R1":1.10,
+        "L!r1":1.10,"L!FR0,5":1.10,"L!FR1":1.30,"W":0.90,"W»":0.90,"WLD":1.10,"WD":1.10,"J":0.90,"JD":1.30,
+        "JF":1.10,"JR0,5":1.10,"JS1B":1.50,"JS1F":2.10,"JFS1B":2.10,"SL>":0.90,"SL!>":0.90
     };
-
+    
+    // 风险提示函数
     function getRiskMsg(code) {
-        if (code.startsWith("T")) return currentLang==='zh' ? "Thrust: 高度需达3.5，旋转须逐渐下降" : "Thrust: height >=3.5, spin must descend";
-        if (code.startsWith("S")) return currentLang==='zh' ? "Spin: 必须逐渐下降，起始高度>=3.5" : "Spin: must descend, start height >=3.5";
-        if (code.match(/^[12]?R/)) return currentLang==='zh' ? "Twist: 高度保持不变，旋转完整" : "Twist: constant height, full rotation";
-        return currentLang==='zh' ? "请查阅官方规则" : "Check official rules";
+        const upperCode = code.toUpperCase();
+        if (upperCode.startsWith("T")) return t('thrustRisk');
+        if (upperCode.startsWith("S")) return t('spinRisk');
+        if (upperCode.match(/^[12]?R/)) return t('twistRisk');
+        if (upperCode.startsWith("A")) return t('airborneRisk');
+        if (upperCode.startsWith("F")) return t('flexibilityRisk');
+        if (upperCode.startsWith("C")) return t('connectionRisk');
+        return t('defaultRisk');
     }
 
     function parseSequence(codesStr) {
-        let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
+        let upperStr = codesStr.toUpperCase();
+        let tokens = upperStr.trim().split(/[\s,]+/).filter(t => t);
         let total = 0, unknown = [], details = [];
         tokens.forEach(code => {
             let v = difficultyMap[code];
@@ -557,18 +307,19 @@
     }
     
     function getFamily(code) {
-        if (code.startsWith("T")) return "T";
-        if (code.startsWith("S")) return "S";
-        if (code.match(/^[12]?R/)) return "R";
-        if (code.startsWith("A")) return "A";
-        if (code.startsWith("F")) return "F";
+        let u = code.toUpperCase();
+        if (u.startsWith("T")) return "T";
+        if (u.startsWith("S")) return "S";
+        if (u.match(/^[12]?R/)) return "R";
+        if (u.startsWith("A")) return "A";
+        if (u.startsWith("F")) return "F";
         return "X";
     }
     
     function checkHybrid(codesStr) {
-        let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
+        let tokens = codesStr.toUpperCase().trim().split(/[\s,]+/).filter(t => t);
         let errors = [];
-        if (tokens.length < 5) errors.push(currentLang==='zh' ? `不足5个 (${tokens.length})` : `Less than 5 (${tokens.length})`);
+        if (tokens.length < 5) errors.push(`❌ Less than 5 moves (${tokens.length})`);
         let famCount = {T:0,S:0,R:0,A:0,F:0};
         let codeCnt = new Map();
         tokens.forEach(code => {
@@ -577,7 +328,7 @@
             codeCnt.set(code, (codeCnt.get(code)||0)+1);
         });
         for (let [c,n] of codeCnt) if (n>3) errors.push(`${c} x${n} >3`);
-        return { errors, warnings: errors.length ? [] : ["OK"], families: Object.keys(famCount).filter(f=>famCount[f]>0) };
+        return { errors, families: Object.keys(famCount).filter(f=>famCount[f]>0) };
     }
     
     function checkGlobalFamilies(allFamilies) {
@@ -588,32 +339,43 @@
     }
     
     function generateRiskHTML(sequencesArr, acroData) {
-        if ((!sequencesArr || sequencesArr.length === 0) && (!acroData || acroData.length === 0)) return `<div>${t('riskEmpty')}</div>`;
+        if ((!sequencesArr || sequencesArr.length === 0) && (!acroData || acroData.length === 0)) 
+            return `<div>${t('riskEmpty')}</div>`;
         let html = '';
         if (sequencesArr) {
             sequencesArr.forEach((seq, idx) => {
-                let codes = seq.trim().split(/[\s,]+/).filter(t => t);
+                let codes = seq.toUpperCase().trim().split(/[\s,]+/).filter(t => t);
                 if (codes.length === 0) return;
-                html += `<div style="margin-bottom: 15px;"><strong>${t('hybrid')} ${idx+1}</strong><br>`;
+                html += `<div style="margin-bottom:20px; background:#fff9e6; padding:12px; border-radius:16px;">`;
+                html += `<strong style="background:#1e88e5; color:white; padding:2px 12px; border-radius:20px;">${t('hybrid')} ${idx+1}</strong><br><br>`;
                 codes.forEach(code => {
                     let risk = getRiskMsg(code);
                     let val = difficultyMap[code];
-                    let valStr = (val !== undefined) ? val.toFixed(2) : '?';
-                    html += `<div class="risk-item"><span class="risk-code">${code} (${valStr})</span><br>${risk}</div>`;
+                    html += `<div class="risk-item">`;
+                    html += `<span class="risk-code">${code} (${val?val.toFixed(2):'?'})</span>`;
+                    html += `<div class="risk-detail">${risk}</div>`;
+                    html += `</div>`;
                 });
-                html += `</div><hr>`;
+                html += `</div>`;
             });
         }
         if (acroData && acroData.length) {
-            html += `<div><strong>${t('acroTitle')}</strong><br>`;
+            html += `<div style="margin-top:15px; background:#e8f0fe; padding:12px; border-radius:16px;">`;
+            html += `<strong style="background:#6c757d; color:white; padding:2px 12px; border-radius:20px;">🏅 ${t('acroTitle')}</strong><br><br>`;
             acroData.forEach(acro => {
                 if (acro.code) {
-                    html += `<div class="risk-item"><span class="risk-code">${acro.code} (${(acro.value||0).toFixed(2)})</span><br>${getRiskMsg(acro.code)}</div>`;
+                    html += `<div class="risk-item">`;
+                    html += `<span class="risk-code">${acro.code} (${(acro.value||0).toFixed(2)})</span>`;
+                    html += `<div class="risk-detail">${getRiskMsg(acro.code)}</div>`;
+                    html += `</div>`;
                 }
             });
             html += `</div>`;
         }
-        return html || `<div>${t('riskEmpty')}</div>`;
+        html += `<div style="margin-top:15px; padding:8px; background:#f0f4f8; border-radius:12px; font-size:0.65rem; color:#666;">`;
+        html += `📖 ${t('rulesRef')}`;
+        html += `</div>`;
+        return html;
     }
 
     function getRequiredHybridCount(ageGroup) {
@@ -639,9 +401,7 @@
     let acroList = [];
     let currentRequiredAcro = 0;
     let historyRecords = [];
-    let lastSavedData = "";
 
-    // 存储函数
     const STORAGE_KEY = "HybridPWA";
     function loadHistory() { 
         const data = localStorage.getItem(STORAGE_KEY);
@@ -653,7 +413,15 @@
         historyRecords = hist;
     }
     
-    // 云端保存记录（静默保存，无提示）
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'feedback-toast' + (isError ? ' error-toast' : '');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // 云端保存记录
     async function saveToCloud(record) {
         if (!supabaseEnabled) return false;
         try {
@@ -661,19 +429,6 @@
             const ageCategorySelect = document.getElementById('ageCategorySelect');
             const discipline = disciplineSelect?.options[disciplineSelect.selectedIndex]?.text || '';
             const ageGroup = ageCategorySelect?.options[ageCategorySelect.selectedIndex]?.text || '';
-            
-            const dataFingerprint = JSON.stringify({
-                sequences: record.sequences,
-                totalScore: record.totalScore,
-                athleteName: record.info?.athleteName,
-                discipline: discipline
-            });
-            
-            if (lastSavedData === dataFingerprint) {
-                console.log("数据未变化，跳过自动保存");
-                return true;
-            }
-            lastSavedData = dataFingerprint;
             
             const { error } = await supabaseClient
                 .from('user_records')
@@ -689,6 +444,8 @@
                     theme: record.info?.theme || '',
                     music_title: record.info?.musicTitle || '',
                     notes: record.info?.notes || '',
+                    prepared_by: record.info?.preparedBy || '',
+                    coach_name: record.info?.coachName || '',
                     acrobatics: record.info?.acrobatics || [],
                     risk_html: record.riskHTML || '',
                     created_at: new Date(record.timestamp).toISOString(),
@@ -696,16 +453,16 @@
                     screen_size: `${window.screen.width}x${window.screen.height}`,
                     discipline: discipline
                 }]);
+            
             if (error) throw error;
-            console.log("已静默保存到云端:", record.name);
+            console.log("✅ Cloud save success:", record.name);
             return true;
         } catch (err) {
-            console.error("云端保存失败:", err);
+            console.error("Cloud save failed:", err);
+            return false;
         }
-        return false;
     }
     
-    // 添加记录到本地
     function addRecordToLocal(name, seqs, hyTotal, acroData, total, pass, info, riskHtml) {
         let hist = loadHistory();
         const newRecord = { 
@@ -722,14 +479,12 @@
         if (hist.length>50) hist.pop();
         saveHistory(hist);
         renderHistory();
-        alert("✓ " + t('saveToLocal'));
+        showToast("✓ " + t('saveToLocal'));
         return newRecord;
     }
     
-    // 自动保存（计算时调用，静默）
     async function autoSaveOnCalculate() {
         if (!hasConsented) return;
-        
         const now = Date.now();
         const info = {
             athleteName: document.getElementById('athleteName')?.value || '',
@@ -738,10 +493,11 @@
             theme: document.getElementById('theme')?.value || '',
             musicTitle: document.getElementById('musicTitle')?.value || '',
             notes: document.getElementById('notes')?.value || '',
+            preparedBy: document.getElementById('preparedBy')?.value || '',
+            coachName: document.getElementById('coachName')?.value || '',
             acrobatics: acroList.map(a => ({ code: a.code, value: a.value }))
         };
         const riskHtml = generateRiskHTML(currentSequences, acroList);
-        
         const autoRecord = {
             id: now,
             name: `Auto-${new Date().toLocaleString()}`,
@@ -752,7 +508,6 @@
             riskHTML: riskHtml,
             timestamp: now
         };
-        
         await saveToCloud(autoRecord);
     }
     
@@ -784,17 +539,60 @@
         }));
     }
     
-    // 管理员面板 - 查看云端所有用户数据
-    async function showAdminPanel() {
+    // 导出云端数据
+    window.exportCloudDataToExcel = async function() {
         if (!supabaseEnabled) {
-            alert("Supabase 未连接，无法查看云端数据。请确保已在 Supabase 中创建 user_records 表。");
+            alert("Supabase not connected");
             return;
         }
-        
+        try {
+            showToast("Exporting cloud data...");
+            const { data: records, error } = await supabaseClient
+                .from('user_records')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            if (!records || records.length === 0) {
+                alert("No cloud data");
+                return;
+            }
+            
+            const wb = XLSX.utils.book_new();
+            const rows = [["ID", "Time", "Name", "Total Score", "Pass", "Athlete", "Event", "Age Group", "Theme", "Music", "Notes", "Prepared By", "Coach Name", "Hybrids", "Acrobatics", "Device", "Screen", "Event Type"]];
+            records.forEach(r => {
+                rows.push([
+                    r.local_id, new Date(r.created_at).toLocaleString(), r.name || '-', r.total_score || 0, r.global_pass ? "Yes" : "No",
+                    r.athlete_name || '', r.event_name || '', r.age_group || '', r.theme || '', r.music_title || '', r.notes || '',
+                    r.prepared_by || '', r.coach_name || '',
+                    JSON.stringify(r.sequences), JSON.stringify(r.acrobatics), r.user_agent || '', r.screen_size || '', r.discipline || ''
+                ]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, "Cloud Data");
+            XLSX.writeFile(wb, `cloud_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+            showToast(`✅ Exported ${records.length} records`);
+        } catch (err) {
+            console.error("Export failed:", err);
+            alert("Export failed: " + err.message);
+        }
+    };
+    
+    // 管理员面板
+    async function showAdminPanel() {
+        if (!supabaseEnabled) {
+            alert("Supabase not connected");
+            return;
+        }
         const modal = document.getElementById('adminModal');
         const content = document.getElementById('adminStatsContent');
-        content.innerHTML = '<p>加载中...</p>';
+        content.innerHTML = '<p>Loading...</p>';
         modal.style.display = 'flex';
+        
+        setTimeout(() => {
+            const exportBtn = document.getElementById('exportCloudDataBtn');
+            if (exportBtn) exportBtn.onclick = window.exportCloudDataToExcel;
+        }, 100);
         
         try {
             const { data: records, error } = await supabaseClient
@@ -803,109 +601,52 @@
                 .order('created_at', { ascending: false });
             
             if (error) throw error;
-            
             if (!records || records.length === 0) {
-                content.innerHTML = '<p>暂无云端数据，等待用户点击"计算"按钮...</p><p style="font-size:0.7rem; color:#666;">💡 提示：用户每次点击"计算"都会自动保存到云端</p>';
+                content.innerHTML = '<p>No cloud data yet. Click "Calculate" to start.</p>';
                 return;
             }
             
             const totalRecords = records.length;
-            const uniqueUsers = new Set(records.map(r => r.user_agent?.substring(0, 50))).size;
+            const uniqueUsers = new Set(records.map(r => r.user_agent?.substring(0,50))).size;
             const avgScore = records.reduce((sum, r) => sum + (r.total_score || 0), 0) / totalRecords;
             const passRate = records.filter(r => r.global_pass).length / totalRecords * 100;
-            
             const disciplineCount = {};
-            records.forEach(r => {
-                const disc = r.discipline || '未知';
-                disciplineCount[disc] = (disciplineCount[disc] || 0) + 1;
-            });
-            
+            records.forEach(r => { const disc = r.discipline || 'Unknown'; disciplineCount[disc] = (disciplineCount[disc] || 0) + 1; });
             const ageGroupCount = {};
-            records.forEach(r => {
-                const age = r.age_group || '未知';
-                ageGroupCount[age] = (ageGroupCount[age] || 0) + 1;
-            });
+            records.forEach(r => { const age = r.age_group || 'Unknown'; ageGroupCount[age] = (ageGroupCount[age] || 0) + 1; });
             
             let html = `
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number">${totalRecords}</div><div class="stat-label">总计算次数</div></div>
-                    <div class="stat-card"><div class="stat-number">${uniqueUsers}</div><div class="stat-label">独立用户</div></div>
-                    <div class="stat-card"><div class="stat-number">${avgScore.toFixed(1)}</div><div class="stat-label">平均难度分</div></div>
-                    <div class="stat-card"><div class="stat-number">${passRate.toFixed(0)}%</div><div class="stat-label">规则通过率</div></div>
+                    <div class="stat-card"><div class="stat-number">${totalRecords}</div><div class="stat-label">Total Calculations</div></div>
+                    <div class="stat-card"><div class="stat-number">${uniqueUsers}</div><div class="stat-label">Unique Users</div></div>
+                    <div class="stat-card"><div class="stat-number">${avgScore.toFixed(1)}</div><div class="stat-label">Average Score</div></div>
+                    <div class="stat-card"><div class="stat-number">${passRate.toFixed(0)}%</div><div class="stat-label">Pass Rate</div></div>
                 </div>
-                <h3>📊 按项目分布</h3>
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
-                    ${Object.entries(disciplineCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}
-                </div>
-                <h3>👥 按年龄组分布</h3>
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
-                    ${Object.entries(ageGroupCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}
-                </div>
-                <h3>📋 最近100条记录</h3>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table"><thead><tr><th>时间</th><th>名称</th><th>总分</th><th>通过</th><th>项目</th><th>年龄组</th><th>设备</th></tr></thead>
-                    <tbody>
-                        ${records.slice(0, 100).map(r => `
-                            <tr>
-                                <td>${new Date(r.created_at).toLocaleString()}</td>
-                                <td>${r.name || '-'}</td>
-                                <td>${(r.total_score || 0).toFixed(2)}</td>
-                                <td>${r.global_pass ? '✓' : '✗'}</td>
-                                <td>${r.discipline || '-'}</td>
-                                <td>${r.age_group || '-'}</td>
-                                <td style="max-width:200px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" title="${r.user_agent || ''}">${(r.user_agent || '-').substring(0, 40)}...</td>
-                            比
-                        `).join('')}
-                    </tbody>
-                </div>
-                <p style="margin-top:15px; font-size:0.7rem; color:#666;">💡 点击下方按钮可导出所有云端数据到 Excel</p>
-                <button onclick="exportCloudData()" style="margin-top:10px;">📊 导出云端数据 (${totalRecords}条)</button>
+                <h3>📊 By Event Type</h3>
+                <div class="stats-grid">${Object.entries(disciplineCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}</div>
+                <h3>👥 By Age Group</h3>
+                <div class="stats-grid">${Object.entries(ageGroupCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}</div>
+                <h3>📋 Recent 100 Records</h3>
+                <div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Time</th><th>Name</th><th>Score</th><th>Pass</th><th>Event Type</th><th>Age</th><th>Device</th></tr></thead><tbody>
+                    ${records.slice(0,100).map(r => `<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${r.name || '-'}</td><td>${(r.total_score || 0).toFixed(2)}</td><td>${r.global_pass ? '✓' : '✗'}</td><td>${r.discipline || '-'}</td><td>${r.age_group || '-'}</td><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${(r.user_agent || '-').substring(0,40)}...<\/td>`).join('')}
+                </tbody><tr></div>
             `;
             content.innerHTML = html;
         } catch (err) {
-            content.innerHTML = `<p style="color:red;">加载失败: ${err.message}</p><p>请确保已在 Supabase 中创建 user_records 表。</p>`;
-        }
-    }
-    
-    // 导出云端数据
-    async function exportCloudData() {
-        if (!supabaseEnabled) return;
-        try {
-            const { data: records, error } = await supabaseClient
-                .from('user_records')
-                .select('*')
-                .order('created_at', { ascending: false });
-            if (error) throw error;
-            const wb = XLSX.utils.book_new();
-            const rows = [["ID", "时间", "名称", "总分", "规则通过", "姓名", "比赛", "年龄组", "主题", "音乐", "备注", "Hybrids", "托举数据", "设备信息", "屏幕尺寸", "项目"]];
-            records.forEach(r => {
-                rows.push([
-                    r.local_id, new Date(r.created_at).toLocaleString(), r.name, r.total_score, r.global_pass ? "是" : "否",
-                    r.athlete_name, r.event_name, r.age_group, r.theme, r.music_title, r.notes,
-                    JSON.stringify(r.sequences), JSON.stringify(r.acrobatics), r.user_agent, r.screen_size, r.discipline
-                ]);
-            });
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            XLSX.utils.book_append_sheet(wb, ws, "云端数据");
-            XLSX.writeFile(wb, `cloud_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-            alert(`导出成功！共 ${records.length} 条记录`);
-        } catch (err) {
-            alert("导出失败: " + err.message);
+            content.innerHTML = `<p style="color:red;">Load failed: ${err.message}</p>`;
         }
     }
     
     function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
     
     function loadRecordToEditor(rec) {
-        if (rec.sequences.length !== currentRequiredCount) {
-            rebuildHybridInputs(rec.sequences.length);
-        }
+        if (rec.sequences.length !== currentRequiredCount) rebuildHybridInputs(rec.sequences.length);
         for (let i=0; i<rec.sequences.length; i++) {
             let ta = document.getElementById(`seq-${i}`);
             if (ta) ta.value = rec.sequences[i] || '';
         }
         if (rec.info) {
-            let fields = ['athleteName', 'eventName', 'ageGroup', 'theme', 'musicTitle', 'notes'];
+            let fields = ['athleteName', 'eventName', 'ageGroup', 'theme', 'musicTitle', 'notes', 'preparedBy', 'coachName'];
             fields.forEach(f => { let el = document.getElementById(f); if(el && rec.info[f]) el.value = rec.info[f]; });
             if (rec.info.acrobatics) {
                 let needed = getRequiredAcroCount(document.getElementById('disciplineSelect')?.value || 'duetWomen', document.getElementById('ageCategorySelect')?.value || 'senior');
@@ -927,51 +668,60 @@
 
     function getAcroTotal() { return acroList.reduce((sum, a) => sum + (a.value || 0), 0); }
 
+    let isCalculating = false;
     function performCalculation() {
-        let hyTotal = 0, allFamilies = [], seqData = [];
-        let actualCount = 0;
-        for (let i = 0; i < currentRequiredCount; i++) {
-            let ta = document.getElementById(`seq-${i}`);
-            if (ta) {
-                sequences[i] = ta.value;
-                actualCount++;
-            } else { sequences[i] = ""; }
-            seqData[i] = sequences[i];
-            let { finalScore, unknown, details } = parseSequence(sequences[i]);
-            hyTotal += finalScore;
-            let scoreSpan = document.getElementById(`score-${i}`);
-            if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ? ${unknown.join(',')}` : '');
-            let { errors, warnings, families } = checkHybrid(sequences[i]);
-            let div = document.getElementById(`check-${i}`);
-            if (div) {
-                let html = errors.length ? `<div style="color:red;">${errors.join('<br>')}</div>` : `<div style="color:green;">✓ ${t('hybridPass')}</div>`;
-                if (unknown.length) html += `<div style="color:red;">? ${t('unknownCode')}: ${unknown.join(',')}</div>`;
-                html += `<div class="code-values">${t('codeValues')} ${details.map(d => `${d.code}:${d.value === '?' ? '?' : d.value.toFixed(2)}`).join(', ')}</div>`;
-                div.innerHTML = html;
+        if (isCalculating) return;
+        isCalculating = true;
+        const calcBtn = document.getElementById('calcBtn');
+        const originalText = calcBtn.innerText;
+        calcBtn.innerText = currentLang === 'zh' ? "计算中..." : "Calculating...";
+        calcBtn.disabled = true;
+        
+        try {
+            let hyTotal = 0, allFamilies = [], seqData = [], actualCount = 0;
+            for (let i = 0; i < currentRequiredCount; i++) {
+                let ta = document.getElementById(`seq-${i}`);
+                if (ta) { sequences[i] = ta.value; actualCount++; } else { sequences[i] = ""; }
+                seqData[i] = sequences[i];
+                let { finalScore, unknown, details } = parseSequence(sequences[i]);
+                hyTotal += finalScore;
+                let scoreSpan = document.getElementById(`score-${i}`);
+                if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ? ${unknown.join(',')}` : '');
+                let { errors, families } = checkHybrid(sequences[i]);
+                let div = document.getElementById(`check-${i}`);
+                if (div) {
+                    let html = errors.length ? `<div style="color:red;">${errors.join('<br>')}</div>` : `<div style="color:green;">✓ ${t('hybridPass')}</div>`;
+                    if (unknown.length) html += `<div style="color:red;">? ${t('unknownCode')}: ${unknown.join(',')}</div>`;
+                    html += `<div class="code-values">${t('codeValues')} ${details.map(d => `${d.code}:${d.value === '?' ? '?' : d.value.toFixed(2)}`).join(', ')}</div>`;
+                    div.innerHTML = html;
+                }
+                allFamilies.push(families);
             }
-            allFamilies.push(families);
+            let { pass, missing } = checkGlobalFamilies(allFamilies);
+            let acroTotal = getAcroTotal();
+            let finalTotal = hyTotal + acroTotal;
+            let totalDiv = document.getElementById('totalScore');
+            let msg = pass ? t('globalPass') : t('globalFail') + missing.join(',');
+            let countMsg = (actualCount !== currentRequiredCount) ? ` ⚠️ ${t('warningCount')}` : ` ✓ ${t('countOk')}`;
+            if (totalDiv) {
+                totalDiv.style.background = (actualCount === currentRequiredCount && pass) ? "#1e3c72" : "#b71c1c";
+                totalDiv.innerHTML = `🏆 ${t('totalWithAcro')}: ${finalTotal.toFixed(2)} &nbsp;&nbsp; ${msg}${countMsg}<br><span style="font-size:0.7rem;">📊 ${t('hybrid')}: ${hyTotal.toFixed(2)} | 🏅 ${t('acroTitle')}: ${acroTotal.toFixed(2)}</span>`;
+            }
+            currentHybridTotal = hyTotal;
+            currentGlobalPass = pass;
+            currentSequences = [...seqData];
+            
+            showToast(t('calcFeedback'));
+            autoSaveOnCalculate();
+        } catch(err) { 
+            console.error("Calculation error:", err);
+            showToast("Error: " + err.message, true);
         }
-        let { pass, missing } = checkGlobalFamilies(allFamilies);
-        let acroTotal = getAcroTotal();
-        let finalTotal = hyTotal + acroTotal;
-        let totalDiv = document.getElementById('totalScore');
-        let msg = pass ? t('globalPass') : t('globalFail') + missing.join(',');
-        let countMsg = (actualCount !== currentRequiredCount) ? ` ⚠️ ${t('warningCount')}` : ` ✓ ${t('countOk')}`;
-        if (totalDiv) {
-            totalDiv.style.background = (actualCount === currentRequiredCount && pass) ? "#1e3c72" : "#b71c1c";
-            totalDiv.innerHTML = `🏆 ${t('totalWithAcro')}: ${finalTotal.toFixed(2)} &nbsp;&nbsp; ${msg}${countMsg}<br><span style="font-size:0.7rem;">📊 ${t('hybrid')}: ${hyTotal.toFixed(2)} | 🏅 ${t('acroTitle')}: ${acroTotal.toFixed(2)}</span>`;
+        finally {
+            calcBtn.innerText = originalText;
+            calcBtn.disabled = false;
+            isCalculating = false;
         }
-        currentHybridTotal = hyTotal;
-        currentGlobalPass = pass;
-        currentSequences = [...seqData];
-        
-        let riskContainer = document.getElementById('riskReportContainer');
-        if (riskContainer && riskContainer.style.display !== 'none') {
-            document.getElementById('riskContent').innerHTML = generateRiskHTML(currentSequences, acroList);
-        }
-        
-        // 静默自动保存到云端（无提示）
-        autoSaveOnCalculate();
     }
 
     function showRisk() {
@@ -985,28 +735,29 @@
         let sugg = [];
         if (currentLang === 'zh') {
             sugg.push(`总难度：${totalScore.toFixed(2)}`);
-            if (totalScore > 35) sugg.push(`难度偏高(>35)，建议降低`);
-            else if (totalScore < 20) sugg.push(`难度偏低，可增加高难度动作`);
+            if (totalScore > 35) sugg.push(`⚠️ 难度偏高(>35)，建议降低`);
+            else if (totalScore < 20) sugg.push(`✅ 难度偏低，可增加高难度动作`);
             let families = new Set();
             for (let seq of currentSequences) {
-                let codes = seq.trim().split(/[\s,]+/);
+                let codes = seq.toUpperCase().trim().split(/[\s,]+/);
                 codes.forEach(c => families.add(getFamily(c)));
             }
             let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`缺少家族：${missing.join(', ')}`);
-            sugg.push(`建议：高难度动作放在开头或结尾`);
+            if (missing.length) sugg.push(`❌ 缺少家族：${missing.join(', ')}（Hybrid必须覆盖全部5个家族）`);
+            sugg.push(`💡 建议：高难度动作放在开头或结尾，高风险动作分散编排`);
         } else {
-            sugg.push(`Total: ${totalScore.toFixed(2)}`);
-            if (totalScore > 35) sugg.push(`High difficulty (>35), reduce`);
+            sugg.push(`Total Score: ${totalScore.toFixed(2)}`);
+            if (totalScore > 35) sugg.push(`⚠️ High difficulty (>35), consider reducing`);
             let families = new Set();
             for (let seq of currentSequences) {
-                let codes = seq.trim().split(/[\s,]+/);
+                let codes = seq.toUpperCase().trim().split(/[\s,]+/);
                 codes.forEach(c => families.add(getFamily(c)));
             }
             let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`Missing families: ${missing.join(', ')}`);
+            if (missing.length) sugg.push(`❌ Missing families: ${missing.join(', ')} (All 5 families required)`);
+            sugg.push(`💡 Tip: Place high-difficulty moves at beginning or end`);
         }
-        let modalHtml = `<div id="suggestionsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px;"><h3>${currentLang === 'zh' ? '设计建议' : 'Suggestions'}</h3><ul>${sugg.map(s => `<li>${s}</li>`).join('')}</ul><button onclick="this.closest('#suggestionsModal').remove()">${t('close')}</button></div></div>`;
+        let modalHtml = `<div id="suggestionsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px;"><h3>${currentLang === 'zh' ? '💡 设计建议' : '💡 Suggestions'}</h3><ul>${sugg.map(s => `<li style="margin-bottom:8px;">${s}</li>`).join('')}</ul><button onclick="this.closest('#suggestionsModal').remove()">${t('close')}</button></div></div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
@@ -1016,7 +767,7 @@
         container.innerHTML = '';
         sequences = new Array(requiredCount).fill("");
         for (let i = 0; i < requiredCount; i++) {
-            sequences[i] = "T8 A8 F5a F5a F7 RC1";
+            sequences[i] = "";
             const card = document.createElement('div');
             card.className = 'seq-card';
             card.innerHTML = `
@@ -1024,18 +775,14 @@
                     <span class="seq-title">${t('hybrid')} ${i+1}</span>
                     <span class="seq-score" id="score-${i}">DD: --</span>
                 </div>
-                <textarea class="seq-input" id="seq-${i}" rows="2">${sequences[i]}</textarea>
+                <textarea class="seq-input" id="seq-${i}" rows="2" placeholder="Example: T8 A8 F5a F5a F7 RC1 (case insensitive)"></textarea>
                 <div class="check-results" id="check-${i}">${t('hybridPass')}</div>
             `;
             container.appendChild(card);
             const textarea = document.getElementById(`seq-${i}`);
-            textarea.addEventListener('input', () => {
-                sequences[i] = textarea.value;
-                if (hasConsented) performCalculation();
-            });
+            textarea.addEventListener('input', () => { sequences[i] = textarea.value; });
         }
         currentRequiredCount = requiredCount;
-        if (hasConsented) performCalculation();
     }
 
     function rebuildAcroInputs(requiredCount) {
@@ -1048,7 +795,7 @@
             const row = document.createElement('div');
             row.className = 'acro-row';
             row.innerHTML = `
-                <input type="text" class="acro-code" placeholder="例: L" style="width:130px;">
+                <input type="text" class="acro-code" placeholder="Example: L!r1, Js1F" style="width:140px;">
                 <input type="number" step="0.01" class="acro-val" value="0" style="width:90px;">
             `;
             const codeInput = row.querySelector('.acro-code');
@@ -1056,26 +803,27 @@
             const idx = i;
             codeInput.addEventListener('input', (e) => {
                 const newCode = e.target.value.trim();
-                const mapped = acroMap[newCode];
+                const mapped = acroMap[newCode.toUpperCase()];
                 if (mapped !== undefined) {
                     valInput.value = mapped;
                     acroList[idx] = { code: newCode, value: mapped };
+                    codeInput.classList.remove('error');
+                } else if (newCode === '') {
+                    valInput.value = 0;
+                    acroList[idx] = { code: '', value: 0 };
                     codeInput.classList.remove('error');
                 } else {
                     valInput.value = 0;
                     acroList[idx] = { code: newCode, value: 0 };
                     codeInput.classList.add('error');
                 }
-                if (hasConsented) performCalculation();
             });
             valInput.addEventListener('input', (e) => {
                 acroList[idx].value = parseFloat(e.target.value) || 0;
-                if (hasConsented) performCalculation();
             });
             container.appendChild(row);
         }
         currentRequiredAcro = requiredCount;
-        if (hasConsented) performCalculation();
     }
 
     function saveCurrentRecordToLocal() {
@@ -1088,64 +836,177 @@
             theme: document.getElementById('theme')?.value || '',
             musicTitle: document.getElementById('musicTitle')?.value || '',
             notes: document.getElementById('notes')?.value || '',
+            preparedBy: document.getElementById('preparedBy')?.value || '',
+            coachName: document.getElementById('coachName')?.value || '',
             acrobatics: acroList.map(a => ({ code: a.code, value: a.value }))
         };
         let riskHtml = generateRiskHTML(currentSequences, acroList);
-        let total = currentHybridTotal + getAcroTotal();
-        addRecordToLocal(name, currentSequences, currentHybridTotal, acroList, total, currentGlobalPass, info, riskHtml);
+        addRecordToLocal(name, currentSequences, currentHybridTotal, acroList, currentHybridTotal + getAcroTotal(), currentGlobalPass, info, riskHtml);
     }
     
     function clearHistory() {
         if (confirm(t('clearConfirm'))) { localStorage.removeItem(STORAGE_KEY); renderHistory(); }
     }
     
-    // 导出本地记录（用户主动保存的记录）
+    // 专业Excel导出 - 按照世界泳联教练卡格式
     function exportLocalRecords() {
         let hist = loadHistory();
-        if (hist.length === 0) {
-            alert(t('noDataExport'));
-            return;
-        }
+        if (hist.length === 0) { alert(t('noDataExport')); return; }
+        
         const wb = XLSX.utils.book_new();
-        const rows = [["名称","总分","状态","姓名","比赛","年龄组","主题","音乐","备注", ...Array(Math.max(...hist.map(r=>r.sequences.length), currentRequiredCount)).fill(0).map((_,i)=>`Hybrid${i+1}`), "创建时间"]];
+        
+        // 为每条记录创建单独的工作表（像教练卡）
+        hist.forEach((rec, idx) => {
+            let info = rec.info || {};
+            let seqs = rec.sequences || [];
+            let acroData = info.acrobatics || [];
+            
+            // 计算总分（含托举）
+            let acroTotal = acroData.reduce((sum, a) => sum + (a.value || 0), 0);
+            let totalScore = rec.totalScore + acroTotal;
+            
+            // 构建教练卡格式的数据
+            const coachCardData = [
+                ["=".repeat(80), "", "", "", "", "", "", ""],
+                ["WORLD AQUATICS ARTISTIC SWIMMING - DIFFICULTY CALCULATOR", "", "", "", "", "", "", ""],
+                ["=".repeat(80), "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["COACH CARD / 教练卡", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["Member Federation / 会员联合会:", info.memberFederation || "", "Competition / 比赛:", info.eventName || "", "", "", "", ""],
+                ["Theme / 主题:", info.theme || "", "Date / 日期:", new Date(rec.timestamp).toLocaleDateString(), "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["ATHLETE INFORMATION / 运动员信息", "", "", "", "", "", "", ""],
+                ["-".repeat(60), "", "", "", "", "", "", ""],
+                ["Athlete Name / 姓名:", info.athleteName || "", "Event Type / 项目:", info.discipline || "", "", "", "", ""],
+                ["Age Group / 年龄组:", info.ageGroup || "", "Category / 类别:", info.category || "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["STAFF INFORMATION / 工作人员信息", "", "", "", "", "", "", ""],
+                ["-".repeat(60), "", "", "", "", "", "", ""],
+                ["Prepared by / 编排人:", info.preparedBy || "", "Coach Name / 教练:", info.coachName || "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["HYBRID DECLARATIONS / 组合声明", "", "", "", "", "", "", ""],
+                ["-".repeat(60), "", "", "", "", "", "", ""],
+                ["Part", "Hybrid Code / 组合代码", "DD Value / 分值", "Movements Count", "Families", "Status", "", ""],
+                ["---", "---", "---", "---", "---", "---", "", ""]
+            ];
+            
+            // 添加每个Hybrid
+            for (let i = 0; i < seqs.length; i++) {
+                let seq = seqs[i] || "";
+                let { finalScore, unknown, details } = parseSequence(seq);
+                let { errors, families } = checkHybrid(seq);
+                let familiesStr = families.join(", ");
+                let status = (errors.length === 0 && unknown.length === 0) ? "✓ Valid" : "⚠️ Check";
+                coachCardData.push([`Hybrid ${i+1}`, seq, finalScore.toFixed(2), details.length, familiesStr, status, "", ""]);
+            }
+            
+            // 添加托举部分
+            if (acroData.length > 0) {
+                coachCardData.push(["", "", "", "", "", "", "", ""]);
+                coachCardData.push(["ACROBATICS DECLARATIONS / 托举声明", "", "", "", "", "", "", ""]);
+                coachCardData.push(["-".repeat(60), "", "", "", "", "", "", ""]);
+                coachCardData.push(["Code", "Value", "Status", "", "", "", "", ""]);
+                coachCardData.push(["---", "---", "---", "", "", "", "", ""]);
+                acroData.forEach(acro => {
+                    let status = acro.value > 0 ? "✓ Mapped" : "⚠️ Not Found";
+                    coachCardData.push([acro.code || "", (acro.value || 0).toFixed(2), status, "", "", "", "", ""]);
+                });
+            }
+            
+            // 添加总分和规则检查
+            coachCardData.push(["", "", "", "", "", "", "", ""]);
+            coachCardData.push(["=".repeat(60), "", "", "", "", "", "", ""]);
+            coachCardData.push(["TOTAL DIFFICULTY SCORE / 总难度分:", totalScore.toFixed(2), "", "", "", "", "", ""]);
+            coachCardData.push(["Base Mark (0.5) + Movements + Acrobatics = Total", "", "", "", "", "", "", ""]);
+            coachCardData.push(["", "", "", "", "", "", "", ""]);
+            coachCardData.push(["RULES CHECK / 规则检查", "", "", "", "", "", "", ""]);
+            coachCardData.push(["-".repeat(60), "", "", "", "", "", "", ""]);
+            
+            // 家族覆盖检查
+            let allFamilies = new Set();
+            for (let seq of seqs) {
+                let { families } = checkHybrid(seq);
+                families.forEach(f => allFamilies.add(f));
+            }
+            let required = ["T", "S", "R", "A", "F"];
+            let missing = required.filter(r => !allFamilies.has(r));
+            let familyStatus = missing.length === 0 ? "✓ All 5 families covered" : "✗ Missing: " + missing.join(", ");
+            coachCardData.push(["Family Coverage / 家族覆盖:", familyStatus, "", "", "", "", "", ""]);
+            
+            // 每个家族声明数量检查
+            let allDeclarations = [];
+            for (let seq of seqs) {
+                let tokens = seq.toUpperCase().trim().split(/[\s,]+/).filter(t => t);
+                allDeclarations.push(...tokens);
+            }
+            let famCount = {T:0, S:0, R:0, A:0, F:0};
+            allDeclarations.forEach(code => {
+                let f = getFamily(code);
+                if (famCount.hasOwnProperty(f)) famCount[f]++;
+            });
+            coachCardData.push(["Max 5 declarations per family:", "", "", "", "", "", "", ""]);
+            for (let [f, count] of Object.entries(famCount)) {
+                let status = count <= 5 ? "✓" : "⚠️ Exceeds";
+                coachCardData.push([`  Family ${f}:`, `${count} declarations`, status, "", "", "", "", ""]);
+            }
+            
+            coachCardData.push(["", "", "", "", "", "", "", ""]);
+            coachCardData.push(["=".repeat(60), "", "", "", "", "", "", ""]);
+            coachCardData.push(["Generated by: Artistic Swimming Difficulty Calculator", "", "", "", "", "", "", ""]);
+            coachCardData.push([`Version: ${APP_VERSION} | Rules: Appendix 6 V5.2 (October 2025)`, "", "", "", "", "", "", ""]);
+            coachCardData.push(["=".repeat(60), "", "", "", "", "", "", ""]);
+            
+            // 创建工作表
+            const ws = XLSX.utils.aoa_to_sheet(coachCardData);
+            
+            // 设置列宽
+            ws['!cols'] = [{wch:8}, {wch:35}, {wch:12}, {wch:15}, {wch:12}, {wch:12}, {wch:8}, {wch:8}];
+            
+            // 工作表名称（限制31字符）
+            let sheetName = rec.name.replace(/[\\/*?:[\]\\]/g, '').substring(0, 25);
+            if (sheetName === "") sheetName = `Record ${idx+1}`;
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        });
+        
+        // 创建汇总表
+        const summaryRows = [["Summary Report / 汇总报告", "", "", "", "", "", "", ""]];
+        summaryRows.push(["=".repeat(80), "", "", "", "", "", "", ""]);
+        summaryRows.push(["Name", "Total Score", "Status", "Athlete", "Event", "Age Group", "Prepared By", "Coach Name"]);
+        summaryRows.push(["---", "---", "---", "---", "---", "---", "---", "---"]);
+        
         hist.forEach(rec => {
             let info = rec.info || {};
-            let seqs = [...rec.sequences];
-            while(seqs.length < currentRequiredCount) seqs.push("");
-            rows.push([
-                rec.name, 
-                (rec.totalScore + (info.acrobatics?.reduce((s,a)=>s+(a.value||0),0) || 0)).toFixed(2), 
-                rec.globalPass ? "通过" : "不通过", 
-                info.athleteName || "", 
-                info.eventName || "", 
-                info.ageGroup || "",
-                info.theme || "",
-                info.musicTitle || "",
-                info.notes || "",
-                ...seqs,
-                new Date(rec.timestamp).toLocaleString()
+            let acroTotal = (info.acrobatics || []).reduce((s,a) => s + (a.value || 0), 0);
+            let totalScore = rec.totalScore + acroTotal;
+            summaryRows.push([
+                rec.name, totalScore.toFixed(2), rec.globalPass ? "Pass" : "Fail",
+                info.athleteName || "", info.eventName || "", info.ageGroup || "",
+                info.preparedBy || "", info.coachName || ""
             ]);
         });
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(wb, ws, "本地记录");
-        XLSX.writeFile(wb, `local_records_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-        alert(`导出成功！共 ${hist.length} 条本地记录`);
+        
+        const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
+        summaryWs['!cols'] = [{wch:20}, {wch:12}, {wch:8}, {wch:15}, {wch:20}, {wch:12}, {wch:15}, {wch:15}];
+        XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
+        
+        XLSX.writeFile(wb, `coach_card_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        alert(`Exported ${hist.length} record(s) in Coach Card format`);
     }
 
     function showPrivacyModal() {
         const modal = document.getElementById('privacyModal');
         const content = document.getElementById('privacyContent');
         if (currentLang === 'zh') {
-            content.innerHTML = `<h2>隐私政策与免责声明</h2><p><strong>隐私政策：</strong>每次点击「计算」按钮，您的编排数据会自动保存到云端，用于改进计算器服务。</p><p><strong>免责声明：</strong>本工具仅供参考，不保证准确性，使用风险自负。</p><p><strong>使用计算器前您必须同意以上条款。</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
+            content.innerHTML = `<h2>隐私政策与免责声明</h2><p><strong>隐私政策：</strong>每次点击「计算」按钮，您的编排数据会自动保存到云端，用于改进计算器服务。</p><p><strong>免责声明：</strong>本工具仅供参考，基于世界泳联2025-2026规则，不保证准确性，使用风险自负。</p><p><strong>使用计算器前您必须同意以上条款。</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
         } else {
-            content.innerHTML = `<h2>Privacy & Disclaimer</h2><p><strong>Privacy:</strong> Each time you click Calculate, your data is auto-saved to cloud.</p><p><strong>Disclaimer:</strong> For reference only. Use at your own risk.</p><p><strong>You must agree to continue.</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
+            content.innerHTML = `<h2>Privacy & Disclaimer</h2><p><strong>Privacy:</strong> Each calculation is auto-saved to cloud for service improvement.</p><p><strong>Disclaimer:</strong> Based on World Aquatics 2025-2026 rules. For reference only. Use at your own risk.</p><p><strong>You must agree to continue.</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
         }
         modal.style.display = 'flex';
         document.getElementById('consentAgreeBtn').onclick = () => {
             hasConsented = true;
             localStorage.setItem('hybridCalculatorConsent', 'true');
             modal.style.display = 'none';
-            performCalculation();
         };
         document.getElementById('viewFullPolicyBtn').onclick = () => showFullPolicyModal();
     }
@@ -1156,7 +1017,7 @@
         if (currentLang === 'zh') {
             content.innerHTML = `<h3>完整隐私政策</h3><p>您的编排数据保存在云端，用于统计分析和改进服务。每次计算都会自动保存。</p><h3>免责声明</h3><p>本工具非官方评判设备，使用风险自负。</p>`;
         } else {
-            content.innerHTML = `<h3>Full Privacy Policy</h3><p>Your data is stored in cloud. Auto-saved on each calculation.</p><h3>Disclaimer</h3><p>This is not an official judging tool. Use at your own risk.</p>`;
+            content.innerHTML = `<h3>Full Privacy Policy</h3><p>Your data is stored in cloud for analytics and service improvement.</p><h3>Disclaimer</h3><p>This is not an official judging tool. Use at your own risk.</p>`;
         }
         modal.style.display = 'flex';
     }
@@ -1185,14 +1046,32 @@
         document.getElementById('privacyLinkText').innerText = t('privacyLink');
         document.getElementById('acroTitle').innerText = t('acroTitle');
         document.getElementById('helpTitle').innerText = t('helpTitle');
-        document.getElementById('helpText').innerHTML = t('helpText');
+        document.getElementById('helpText1').innerHTML = t('helpText1');
         document.getElementById('helpText2').innerHTML = t('helpText2');
+        document.getElementById('helpText3').innerHTML = t('helpText3');
+        document.getElementById('helpText4').innerHTML = t('helpText4');
+        document.getElementById('helpText5').innerHTML = t('helpText5');
         document.getElementById('rulesRefText').innerHTML = `${t('rulesRef')} <a href="${RULES_REF.link}" target="_blank">${t('rulesLink')}</a>`;
-        if (hasConsented) performCalculation();
+        document.getElementById('athleteLabel').innerHTML = t('athlete');
+        document.getElementById('eventLabel').innerHTML = t('event');
+        document.getElementById('categoryLabel').innerHTML = t('category');
+        document.getElementById('themeLabel').innerHTML = t('theme');
+        document.getElementById('musicLabel').innerHTML = t('music');
+        document.getElementById('notesLabel').innerHTML = t('notes');
+        document.getElementById('preparedByLabel').innerHTML = t('preparedBy');
+        document.getElementById('coachNameLabel').innerHTML = t('coachName');
+        document.getElementById('disciplineLabel').innerHTML = t('discipline');
+        document.getElementById('ageCategoryLabel').innerHTML = t('ageCategory');
+        
+        const exportBtn = document.querySelector('#exportLocalBtn');
+        if (exportBtn) exportBtn.innerHTML = `📎 ${t('exportSubmit')}`;
+        for (let i=0;i<currentRequiredCount;i++) {
+            let titleSpan = document.querySelector(`#seqContainer .seq-card:nth-child(${i+1}) .seq-title`);
+            if (titleSpan) titleSpan.innerText = `${t('hybrid')} ${i+1}`;
+        }
         renderHistory();
     }
 
-    // 语言选择初始化
     function initLanguageSelection() {
         const savedLang = localStorage.getItem('appLanguage');
         if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
@@ -1221,20 +1100,27 @@
         container.innerHTML = `
             <div class="header-top">
                 <h1><span id="titleText">${t('title')}</span></h1>
-                <div class="top-buttons">
+                <div class="left-buttons">
                     <button id="langBtn" class="lang-switch">${currentLang === 'en' ? 'EN' : '中文'}</button>
-                    <button id="exportLocalBtn" class="export-btn" style="background:#6c757d;">📎 ${t('exportSubmit')}</button>
-                    <button id="adminBtn" class="admin-dot" title="数据面板"></button>
+                    <button id="exportLocalBtn" class="export-local-btn">📎 ${t('exportSubmit')}</button>
+                </div>
+                <div class="right-buttons">
+                    <button id="adminBtn" class="admin-dot" title="Admin Panel"></button>
                 </div>
             </div>
             <div class="sub" id="subText">${t('sub')}</div>
             <div class="help-text">
-                <strong id="helpTitle">${t('helpTitle')}</strong><br>
-                <span id="helpText">${t('helpText')}</span><br>
-                <span id="helpText2" style="font-size:0.7rem;">${t('helpText2')}</span>
+                <strong id="helpTitle">${t('helpTitle')}</strong>
+                <ol>
+                    <li id="helpText1">${t('helpText1')}</li>
+                    <li id="helpText2">${t('helpText2')}</li>
+                    <li id="helpText3">${t('helpText3')}</li>
+                    <li id="helpText4">${t('helpText4')}</li>
+                    <li id="helpText5">${t('helpText5')}</li>
+                </ol>
             </div>
             <div class="info-panel">
-                <div class="info-group"><label>${t('discipline')}</label>
+                <div class="info-group"><label id="disciplineLabel">${t('discipline')}</label>
                     <select id="disciplineSelect">
                         <option value="soloWomen">${t('soloWomen')}</option>
                         <option value="soloMen">${t('soloMen')}</option>
@@ -1246,7 +1132,7 @@
                         <option value="combo">${t('combo')}</option>
                     </select>
                 </div>
-                <div class="info-group"><label>${t('ageCategory')}</label>
+                <div class="info-group"><label id="ageCategoryLabel">${t('ageCategory')}</label>
                     <select id="ageCategorySelect">
                         <option value="senior">${t('ageSenior')}</option>
                         <option value="junior">${t('ageJunior')}</option>
@@ -1254,11 +1140,14 @@
                         <option value="12U">${t('age12U')}</option>
                     </select>
                 </div>
-                <div class="info-group"><label>${t('name')}</label><input id="athleteName"></div>
-                <div class="info-group"><label>${t('event')}</label><input id="eventName"></div>
-                <div class="info-group"><label>${t('theme')}</label><input id="theme"></div>
-                <div class="info-group"><label>${t('music')}</label><input id="musicTitle"></div>
-                <div class="info-group"><label>${t('notes')}</label><textarea id="notes" rows="1"></textarea></div>
+                <div class="info-group"><label id="athleteLabel">${t('athlete')}</label><input id="athleteName"></div>
+                <div class="info-group"><label id="eventLabel">${t('event')}</label><input id="eventName"></div>
+                <div class="info-group"><label id="categoryLabel">${t('category')}</label><input id="ageGroup"></div>
+                <div class="info-group"><label id="themeLabel">${t('theme')}</label><input id="theme"></div>
+                <div class="info-group"><label id="musicLabel">${t('music')}</label><input id="musicTitle"></div>
+                <div class="info-group"><label id="notesLabel">${t('notes')}</label><textarea id="notes" rows="1"></textarea></div>
+                <div class="info-group"><label id="preparedByLabel">${t('preparedBy')}</label><input id="preparedBy"></div>
+                <div class="info-group"><label id="coachNameLabel">${t('coachName')}</label><input id="coachName"></div>
             </div>
             <div class="action-bar">
                 <button id="calcBtn">${t('calc')}</button>
@@ -1283,14 +1172,14 @@
                         <div id="riskReportContainer" class="risk-report" style="display:none;">
                             <div id="riskContent">${t('riskEmpty')}</div>
                         </div>
-                        <button id="riskBtn" style="margin-top: 10px;">🔍 ${t('risk')}</button>
+                        <button id="riskBtn" style="margin-top:10px;">🔍 ${t('risk')}</button>
                     </div>
                     <div class="history-card">
                         <h3 id="historyCardTitle">📋 ${t('historyTitle')}</h3>
-                        <div style="max-height: 350px; overflow-y: auto;">
+                        <div style="max-height:350px; overflow-y:auto;">
                             <table class="history-table"><thead><tr><th>${t('nameCol')}</th><th>${t('totalCol')}</th><th>${t('status')}</th><th>${t('action')}</th></tr></thead><tbody id="historyBody"></tbody></table>
                         </div>
-                        <button id="clearHistoryBtn" style="margin-top: 10px;" class="danger">🗑️ ${t('clearAll')}</button>
+                        <button id="clearHistoryBtn" style="margin-top:10px;" class="danger">🗑️ ${t('clearAll')}</button>
                     </div>
                 </div>
             </div>
@@ -1314,22 +1203,17 @@
             if (newRequired !== currentRequiredCount) rebuildHybridInputs(newRequired);
             const newAcro = getRequiredAcroCount(discSelect.value, ageSelect.value);
             if (newAcro !== currentRequiredAcro) rebuildAcroInputs(newAcro);
-            if (hasConsented) performCalculation();
         });
         discSelect.addEventListener('change', () => {
             const newAcro = getRequiredAcroCount(discSelect.value, ageSelect.value);
             if (newAcro !== currentRequiredAcro) rebuildAcroInputs(newAcro);
-            if (hasConsented) performCalculation();
         });
         
         document.getElementById('calcBtn').addEventListener('click', checkConsentAndCalculate);
         document.getElementById('saveBtn').addEventListener('click', saveCurrentRecordToLocal);
         document.getElementById('exportBtn').addEventListener('click', () => {
-            if (currentSequences.length && currentSequences.some(s => s.trim())) {
-                exportLocalRecords();
-            } else {
-                alert(t('noDataExport'));
-            }
+            if (currentSequences.length && currentSequences.some(s => s.trim())) exportLocalRecords();
+            else alert(t('noDataExport'));
         });
         document.getElementById('exportLocalBtn').addEventListener('click', exportLocalRecords);
         document.getElementById('riskBtn').addEventListener('click', showRisk);
@@ -1339,33 +1223,22 @@
         document.getElementById('adminBtn').addEventListener('click', showAdminPanel);
         document.getElementById('privacyLinkText').addEventListener('click', (e) => { e.preventDefault(); showFullPolicyModal(); });
         
-        if (hasConsented) performCalculation();
         renderHistory();
     }
+    
+    // 挂载全局函数
+    window.closeAdminModal = closeAdminModal;
+    window.closeFullModal = closeFullModal;
+    window.closePrivacyModal = closePrivacyModal;
     
     initLanguageSelection();
 </script>
 
 <div id="privacyModal" class="modal">
-    <div class="modal-content">
-        <div id="privacyContent"></div>
-        <button onclick="closePrivacyModal()" style="margin-top:15px;">${t('close')}</button>
-    </div>
+    <div class="modal-content"><div id="privacyContent"></div><button onclick="closePrivacyModal()" style="margin-top:15px;">${t('close')}</button></div>
 </div>
 <div id="fullPolicyModal" class="modal">
-    <div class="modal-content">
-        <div id="fullPolicyContent"></div>
-        <button onclick="closeFullModal()" style="margin-top:15px;">${t('close')}</button>
-    </div>
+    <div class="modal-content"><div id="fullPolicyContent"></div><button onclick="closeFullModal()" style="margin-top:15px;">${t('close')}</button></div>
 </div>
-
-<script>
-    window.closePrivacyModal = function() { document.getElementById('privacyModal').style.display = 'none'; };
-    window.closeFullModal = function() { document.getElementById('fullPolicyModal').style.display = 'none'; };
-    window.closeAdminModal = function() { document.getElementById('adminModal').style.display = 'none'; };
-    window.exportCloudData = function() { 
-        if (typeof exportCloudData === 'function') exportCloudData();
-    };
-</script>
 </body>
 </html>
