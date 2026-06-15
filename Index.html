@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Artistic Swimming Hybrid Calculator | 花样游泳难度计算器</title>
+    <title>花样游泳难度计算器 | 专业版</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="难度助手">
     <meta name="theme-color" content="#1e3c72">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -147,6 +148,10 @@
             transition: 0.2s;
         }
         button:hover { background: #0b5e9e; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #b02a37; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #1e7e34; }
         .two-columns {
             display: flex;
             gap: 20px;
@@ -257,8 +262,6 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
-            display: table;
-            overflow-x: auto;
         }
         .history-table th, .history-table td {
             border-bottom: 1px solid #dce4ec;
@@ -290,6 +293,39 @@
             font-size: 0.75rem;
             border-left: 4px solid #f0ad4e;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .sync-status {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: #e8f0fe;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-status.synced { background: #d4edda; color: #155724; }
+        .sync-status.error { background: #f8d7da; color: #721c24; }
+        .sync-status.syncing { background: #fff3cd; color: #856404; }
         @media (max-width: 700px) {
             .container { padding: 12px 16px; }
             .action-bar { flex-direction: column; align-items: stretch; }
@@ -302,90 +338,113 @@
 </head>
 <body>
 <div class="container" id="app"></div>
+ 
 <script>
-    // ==================== 版本号与规则参考 ====================
-    const APP_VERSION = "v3.4.0 (实时代码错误检测)";
+    // ==================== Supabase 配置 ====================
+    // 请在这里填入您的 Supabase 项目信息
+    const SUPABASE_URL = "https://wjbcswalngxcjwcsbhlm.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "sb_publishable_VUxDOkSHiHie0brbdZ04fw_q1EF3QdB";
+    
+    let supabaseClient = null;
+    let supabaseEnabled = false;
+    
+    // 尝试初始化 Supabase
+    if (SUPABASE_URL && SUPABASE_URL !== "https://你的项目.supabase.co" && 
+        SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("示例密钥")) {
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseEnabled = true;
+            console.log("✅ Supabase 客户端已初始化");
+        } catch(e) {
+            console.warn("Supabase 初始化失败:", e);
+            supabaseEnabled = false;
+        }
+    } else {
+        console.log("⚠️ 请配置正确的 Supabase URL 和 anon key");
+        console.log("获取方式: Supabase 项目设置 -> API -> URL 和 anon/public key");
+    }
+ 
+    // ==================== 版本信息 ====================
+    const APP_VERSION = "v3.7.0 (Supabase云端版)";
     const RULES_REF = {
         fileName: "Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf",
         version: "V5.2, October 2025",
         effective: "October 2025",
         link: "https://resources.fina.org/fina/document/2025/10/24/cbafa24c-437a-4242-87e7-0384651e3564/Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf"
     };
-    console.log(`花样游泳难度计算器 ${APP_VERSION}`);
-
+ 
     // ---------- 语言资源 ----------
     const langResources = {
         en: {
             title: "🏊‍♀️ Artistic Swimming Hybrid Calculator",
-            sub: "Difficulty Mapping + Rules Check + Base Mark Risk | EN/CN",
+            sub: "Difficulty Mapping + Rules Check + Base Mark Risk",
             name: "👤 Athlete", event: "🏆 Competition", age: "📅 Age Group", theme: "🎭 Theme", music: "🎵 Music Title", notes: "📋 Notes",
-            discipline: "Discipline", ageCategory: "Age Category", soloWomen: "Women Solo", soloMen: "Men Solo", duetWomen: "Women Duet", mixedDuet: "Mixed Duet", teamTech: "Team Technical", teamFree: "Team Free", acro: "Acrobatic Routine", combo: "Free Combination",
+            discipline: "Discipline", ageCategory: "Age Category", soloWomen: "Women Solo", soloMen: "Men Solo", duetWomen: "Women Duet", mixedDuet: "Mixed Duet", teamTech: "Team Technical", teamFree: "Team Free", acro: "Acrobatic", combo: "Free Combination",
             age12U: "12 & Under", ageYouth: "Youth", ageJunior: "Junior", ageSenior: "Senior",
-            hybrid: "Hybrid", calc: "Calculate", save: "Save Record", export: "Export Excel", risk: "Show Risks", suggestions: "Design Suggestions",
-            total: "Total Difficulty Score", globalPass: "✅ All 5 families covered", globalFail: "❌ Missing families: ",
-            hybridPass: "Click 'Calculate' to check", unknownCode: "⚠️ Unknown code", noRecord: "No records",
-            load: "Load", riskView: "Risk", delete: "Delete", clearAll: "Clear All Records",
-            riskTitle: "⚠️ Base Mark Risk Analysis", riskEmpty: "No risk analysis yet, click 'Show Risks' first",
-            savePrompt: "Enter record name", exportConfirm: "No records to export", clearConfirm: "Clear all records?",
-            action: "Actions", status: "Status", nameCol: "Name/Time", totalCol: "Score", ok: "OK", fail: "Fail",
-            historyTitle: "📋 Saved Records", riskCardTitle: "⚠️ Base Mark Risk Analysis",
-            codeValues: "Code values: ", close: "Close",
-            submitSuccess: "Data submitted. Thank you!", submitFail: "Submission failed. Please try again.",
-            rulesRef: `Rules reference: ${RULES_REF.fileName} (${RULES_REF.version}) – Effective ${RULES_REF.effective}. `,
-            rulesLink: "Download official PDF",
-            mustAgree: "Please review and agree to the Privacy Policy and Disclaimer before calculating.",
-            agreeToContinue: "You must agree to the Privacy Policy and Disclaimer to use the calculator.",
+            hybrid: "Hybrid", calc: "Calculate", save: "Save", export: "Export Excel", risk: "Show Risks", suggestions: "Suggestions",
+            total: "Total Score", globalPass: "✅ All 5 families covered", globalFail: "❌ Missing: ",
+            hybridPass: "Click Calculate", unknownCode: "⚠️ Unknown",
+            noRecord: "No records", load: "Load", delete: "Delete", clearAll: "Clear All",
+            riskTitle: "⚠️ Risk Analysis", riskEmpty: "Click 'Show Risks' first",
+            savePrompt: "Enter record name", clearConfirm: "Clear all records?",
+            action: "Actions", status: "Status", nameCol: "Name", totalCol: "Score",
+            historyTitle: "📋 Saved Records", riskCardTitle: "⚠️ Risk Analysis",
+            codeValues: "Values: ", close: "Close",
+            rulesRef: `Rules: ${RULES_REF.fileName} (${RULES_REF.version}) `,
+            rulesLink: "Download PDF",
             privacyLink: "Privacy & Disclaimer",
-            acroTitle: "🤸 Acrobatics / Lifts (Duet & Team)",
-            acroCode: "Acro Code",
-            acroValue: "Value",
-            totalWithAcro: "Total (Hybrids + Acro)",
+            acroTitle: "🤸 Acrobatics",
+            totalWithAcro: "Total (Hybrid + Acro)",
             helpTitle: "📖 How to use",
-            helpText: "Enter Hybrid codes (space separated) for each routine part. Acro inputs automatically adjust based on discipline and age. Acro codes auto-map to difficulty values. Click Calculate to get total difficulty.",
-            helpText2: "Mixed Duet has different element distribution: refer to official rules.",
-            hybridCountLabel: "Hybrids required: ",
-            warningCount: "Warning: Required number of hybrids not met!",
-            countOk: "✓ Hybrid count correct.",
-            noDataExport: "No data to export. Please calculate first."
+            helpText: "Enter Hybrid codes (space separated). Acro codes auto-map to values.",
+            helpText2: "Mixed Duet: refer to official rules.",
+            warningCount: "Warning: Wrong hybrid count!",
+            countOk: "✓ Hybrid count OK.",
+            exportSubmit: "Export All Records",
+            syncToCloud: "☁️ Sync to Cloud",
+            syncFromCloud: "📥 Load from Cloud",
+            cloudSynced: "Cloud Synced",
+            syncError: "Sync Failed",
+            cloudRecords: "Cloud Records"
         },
         zh: {
             title: "🏊‍♀️ 花样游泳 Hybrid 难度计算器",
-            sub: "难度映射 + 规则检查 + 风险提示 | 支持中英文",
+            sub: "难度映射 + 规则检查 + 风险提示 + 云端存储",
             name: "👤 姓名", event: "🏆 比赛名称", age: "📅 年龄组", theme: "🎭 主题", music: "🎵 音乐名称", notes: "📋 备注",
-            discipline: "项目", ageCategory: "年龄组别", soloWomen: "女子单人", soloMen: "男子单人", duetWomen: "女子双人", mixedDuet: "混合双人", teamTech: "集体技术自选", teamFree: "集体自由自选", acro: "技巧自选", combo: "自由组合",
+            discipline: "项目", ageCategory: "年龄组别", soloWomen: "女子单人", soloMen: "男子单人", duetWomen: "女子双人", mixedDuet: "混合双人", teamTech: "集体技术", teamFree: "集体自由", acro: "技巧自选", combo: "自由组合",
             age12U: "12岁及以下", ageYouth: "青年组", ageJunior: "少年组", ageSenior: "成年组",
-            hybrid: "组合", calc: "计算", save: "保存记录", export: "导出 Excel", risk: "显示风险", suggestions: "设计建议",
-            total: "总难度分", globalPass: "✅ 覆盖全部5个家族", globalFail: "❌ 缺少家族: ",
-            hybridPass: "点击“计算”开始检查", unknownCode: "⚠️ 未知代码", noRecord: "暂无记录",
-            load: "加载", riskView: "风险", delete: "删除", clearAll: "清空所有记录",
-            riskTitle: "⚠️ Base Mark 风险提示", riskEmpty: "当前没有风险分析，请先点击“显示风险”",
-            savePrompt: "请输入记录名称", exportConfirm: "暂无记录可导出", clearConfirm: "确定清空所有记录？",
-            action: "操作", status: "状态", nameCol: "名称/时间", totalCol: "总分", ok: "通过", fail: "不通过",
-            historyTitle: "📋 保存的记录", riskCardTitle: "⚠️ Base Mark 风险分析",
-            codeValues: "代码分值：", close: "关闭",
-            submitSuccess: "提交成功，感谢分享！", submitFail: "提交失败，请稍后重试。",
-            rulesRef: `规则参考：${RULES_REF.fileName} (${RULES_REF.version}) – 自 ${RULES_REF.effective} 生效。`,
-            rulesLink: "下载官方 PDF",
-            mustAgree: "请先阅读并同意隐私政策和免责声明后再进行计算。",
-            agreeToContinue: "您需要同意隐私政策和免责声明才能使用计算器。",
+            hybrid: "组合", calc: "计算", save: "保存", export: "导出 Excel", risk: "显示风险", suggestions: "设计建议",
+            total: "总难度分", globalPass: "✅ 覆盖全部5个家族", globalFail: "❌ 缺少: ",
+            hybridPass: "点击计算", unknownCode: "⚠️ 未知",
+            noRecord: "暂无记录", load: "加载", delete: "删除", clearAll: "清空所有",
+            riskTitle: "⚠️ 风险分析", riskEmpty: "请先点击显示风险",
+            savePrompt: "请输入记录名称", clearConfirm: "确定清空？",
+            action: "操作", status: "状态", nameCol: "名称", totalCol: "总分",
+            historyTitle: "📋 保存记录", riskCardTitle: "⚠️ 风险分析",
+            codeValues: "分值：", close: "关闭",
+            rulesRef: `规则：${RULES_REF.fileName} (${RULES_REF.version}) `,
+            rulesLink: "下载 PDF",
             privacyLink: "隐私与免责",
-            acroTitle: "🤸 托举/技巧动作（双人/集体）",
-            acroCode: "托举代码",
-            acroValue: "分值",
+            acroTitle: "🤸 托举动作",
             totalWithAcro: "总分（Hybrid + 托举）",
             helpTitle: "📖 使用说明",
-            helpText: "在每个组合框中输入Hybrid代码（空格分隔）。托举输入框会根据项目和年龄组自动生成。输入托举代码后自动映射官方分值。点击“计算”获得总难度分。",
-            helpText2: "混合双人的元素分布特殊，请参考官方规则。",
-            hybridCountLabel: "需要输入的Hybrid数量：",
-            warningCount: "警告：Hybrid数量不符合规定！",
+            helpText: "输入Hybrid代码（空格分隔）。托举代码自动映射分值。",
+            helpText2: "混合双人请参考官方规则。",
+            warningCount: "警告：Hybrid数量不正确！",
             countOk: "✓ Hybrid数量正确。",
-            noDataExport: "没有数据可导出，请先点击“计算”。"
+            exportSubmit: "导出所有记录",
+            syncToCloud: "☁️ 同步到云端",
+            syncFromCloud: "📥 从云端加载",
+            cloudSynced: "已同步",
+            syncError: "同步失败",
+            cloudRecords: "云端记录"
         }
     };
-    let currentLang = 'en';
+    
+    let currentLang = 'zh';
     function t(key) { return langResources[currentLang][key] || key; }
-
-    // ---------- 难度映射表 (Hybrid) ----------
+ 
+    // ---------- 难度映射表 ----------
     const difficultyMap = {
         "TB":0.30,"T1":0.45,"T2a":0.50,"T2b":0.50,"T3a":0.65,"T3b":0.65,"T3c":0.65,"T3d":0.65,
         "T4a":0.80,"T4b":0.80,"T4c":0.80,"T4d":0.80,"T4e":0.80,"T5a":0.90,"T5b":0.90,"T5c":0.90,"T5d":0.90,"T5e":0.90,
@@ -397,7 +456,6 @@
         "R2":0.40,"1R2":0.75,"2R2":0.95,"RD2":1.05,"RU2":1.15,"R3":0.60,"1R3":1.15,"2R3":1.45,"RU3":1.75,
         "R4":0.80,"1R4":1.55,"2R4":1.95,"RD4":2.15,"RU4":2.35,"1R5":1.95,"2R5":2.45,"RU5":2.95,
         "1R6":2.35,"2R6":2.95,"RD6":3.35,"RU6":3.55,"2R7":3.45,"RU7":4.15,"2R8":3.95,"RU8":4.75,"2R9":4.45,"RU9":5.35,"2R10":4.95,"RU10":5.95,
-        "RRB":0.10,"RRS1":0.20,"RRS2":0.40,"RRS3":0.60,"RRS4":0.80,
         "AB":0.05,"A1a":0.10,"A1b":0.10,"A1c":0.10,"A1d":0.10,"A2a":0.15,"A2b":0.15,"A3a":0.20,"A3b":0.20,"A3c":0.20,
         "A4a":0.45,"A4b":0.45,"A5":0.65,"A6":1.15,"A7":1.45,"A8":1.65,
         "FB":0.05,"F1a":0.10,"F1b":0.10,"F1c":0.10,"F2a":0.20,"F2b":0.20,"F2c":0.20,"F3a":0.30,"F3b":0.30,"F3c":0.30,
@@ -405,37 +463,21 @@
         "F6a":0.65,"F6b":0.65,"F6c":0.65,"F6d":0.65,"F7":0.75,"F8a":0.90,"F8b":0.90,"F9":1.00,"F10":1.30,
         "CB":0.10,"CB+":0.20,"C1a":0.20,"C1b":0.20,"C1a+":0.30,"C1b+":0.30,"C2a":0.30,"C2b":0.30,"C2c":0.30,
         "C2a+":0.40,"C2b+":0.40,"C2c+":0.40,"C3":0.40,"C3+":0.50,"C4":0.50,"C4+":0.60,"C5":1.00,"C5+":1.10,
-        "C6a":1.25,"C6b":1.25,"C6a+":1.35,"C6b+":1.35,"C7":1.50,"C7+":1.60,
-        "T3":0.65,"T4":0.80,"T5":0.90,"T6":1.10,"S5":1.95,"S6":2.35,"R5":0.95,"R6":1.15,"A2":0.15,"A3":0.20,"A4":0.45,
-        "F2":0.20,"F3":0.30,"F4":0.40,"F5":0.50,"F6":0.65,"C2":0.30,"C3":0.40,"C4":0.50,"C5":1.00,"C6":1.25
+        "C6a":1.25,"C6b":1.25,"C6a+":1.35,"C6b+":1.35,"C7":1.50,"C7+":1.60
     };
-    // Acro 难度映射
+    
     const acroMap = {
-        "L>>": 0.10, "L!>>": 0.20, "L": 0.40, "Lf>>": 0.40, "L!f>>": 0.40, "L!r0,5>>": 0.60, "L!": 0.60,
-        "LIr1>>": 0.60, "LIfr0,5>>": 0.60, "Lr0,5": 0.60, "SL>": 0.80, "LIr0,5": 0.80, "Lfr0,5": 0.80,
-        "LIf": 0.80, "SLI>": 0.80, "Lr1": 0.80, "J": 0.80, "WI>>": 0.80, "LIr1": 1.00, "LIfr0,5": 1.00,
-        "SLIf>": 1.00, "SLIr0,5>": 1.00, "SLIr1>": 1.00, "Jr0,5": 1.00, "Jf": 1.00, "Tld": 1.00,
-        "WIr0,5": 1.20, "WIf": 1.20, "Jd": 1.20, "WIso,5": 1.40, "WIfr0,5": 1.40,
-        "TA1": 0.50, "TB2": 0.80, "TC3": 1.10
+        "L»":0.20,"L!»":0.30,"L":0.50,"Lf»":0.50,"L!f»":0.50,"L!":0.70,"Lf":0.70,"Lr0,5":0.90,"W":0.90,
+        "W»":0.90,"L!r1":1.10,"J":0.90,"Wd":1.10,"Js1F":2.10
     };
-    // 风险提示
-    const riskMessages = {
-        "T8": { zh: "• Thrust 最低高度未达3.5（膝盖以上）\n• 后接 Spin 720° 未逐渐下降", en: "• Thrust min height <3.5\n• Spin 720° not gradual" },
-        "A8": { zh: "• 不平衡摇摆中经过平衡“V”型位置\n• 持续不足3秒", en: "• Pass balanced V position\n• Duration <3s" },
-        "F5a": { zh: "• Knight 膝盖完全没入水下\n• 垂直腿偏离 >30°", en: "• Kneecap underwater\n• Vertical leg off >30°" },
-        "RC1": { zh: "• Split 角度 <90°\n• 闭合旋转未达360°", en: "• Split angle <90°\n• Close rotation <360°" },
-        "S2": { zh: "• 旋转必须全程逐渐下降\n• 旋转不足720°", en: "• Must descend gradually\n• Rotation <720°" },
-    };
+ 
     function getRiskMsg(code) {
-        let r = riskMessages[code];
-        if (r) return r[currentLang] || r.zh;
-        if (code.startsWith("T")) return currentLang==='zh' ? "Thrust动作：注意高度3.5，旋转需逐渐下降。" : "Thrust: min height 3.5, spin gradual.";
-        if (code.startsWith("S")) return currentLang==='zh' ? "Spin动作：必须逐渐下降。" : "Spin: must descend gradually.";
-        if (code.match(/^[12]?R/)) return currentLang==='zh' ? "Twist：高度不变，度数完整。" : "Twist: height constant, full rotation.";
-        return currentLang==='zh' ? "请参考规则手册。" : "Check rulebook.";
+        if (code.startsWith("T")) return currentLang==='zh' ? "⚠️ Thrust: 高度需达3.5，旋转须逐渐下降" : "⚠️ Thrust: height ≥3.5, spin must descend";
+        if (code.startsWith("S")) return currentLang==='zh' ? "⚠️ Spin: 必须逐渐下降，起始高度≥3.5" : "⚠️ Spin: must descend, start height ≥3.5";
+        if (code.match(/^[12]?R/)) return currentLang==='zh' ? "⚠️ Twist: 高度保持不变，旋转完整" : "⚠️ Twist: constant height, full rotation";
+        return currentLang==='zh' ? "⚠️ 请查阅官方规则" : "⚠️ Check official rules";
     }
-
-    // ---------- 辅助函数 ----------
+ 
     function parseSequence(codesStr) {
         let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
         let total = 0, unknown = [], details = [];
@@ -446,98 +488,412 @@
         });
         return { total, finalScore: total + 0.5, unknown, count: tokens.length, details };
     }
+    
     function getFamily(code) {
         if (code.startsWith("T")) return "T";
         if (code.startsWith("S")) return "S";
         if (code.match(/^[12]?R/)) return "R";
         if (code.startsWith("A")) return "A";
         if (code.startsWith("F")) return "F";
-        if (code.startsWith("C")) return "C";
         return "X";
     }
+    
     function checkHybrid(codesStr) {
         let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
-        let errors = [], warnings = [];
-        if (tokens.length < 5) errors.push(currentLang==='zh' ? `❌ 动作不足5个 (${tokens.length})` : `❌ Less than 5 moves (${tokens.length})`);
-        let famCount = {T:0,S:0,R:0,A:0,F:0,C:0};
+        let errors = [];
+        if (tokens.length < 5) errors.push(currentLang==='zh' ? `❌ 不足5个 (${tokens.length})` : `❌ Less than 5 (${tokens.length})`);
+        let famCount = {T:0,S:0,R:0,A:0,F:0};
         let codeCnt = new Map();
         tokens.forEach(code => {
             let f = getFamily(code);
             if (famCount.hasOwnProperty(f)) famCount[f]++;
             codeCnt.set(code, (codeCnt.get(code)||0)+1);
         });
-        for (let f of ["T","S","R","A","F","C"]) {
-            if (famCount[f] > 5) errors.push(currentLang==='zh' ? `❌ ${f}家族出现${famCount[f]}次 >5` : `❌ Family ${f} appears ${famCount[f]} times >5`);
-        }
-        for (let [c,n] of codeCnt) if (n>3) errors.push(currentLang==='zh' ? `❌ ${c} 出现${n}次 >3` : `❌ ${c} appears ${n} times >3`);
-        if (!errors.length) warnings.push(currentLang==='zh' ? "✅ 规则通过" : "✅ Rules OK");
-        return { errors, warnings, families: Object.keys(famCount).filter(f=>famCount[f]>0) };
+        for (let [c,n] of codeCnt) if (n>3) errors.push(`${c} x${n} >3`);
+        return { errors, warnings: errors.length ? [] : ["✅ OK"], families: Object.keys(famCount).filter(f=>famCount[f]>0) };
     }
+    
     function checkGlobalFamilies(allFamilies) {
         let global = new Set();
         allFamilies.forEach(fams => fams.forEach(f => global.add(f)));
-        let required = ["T","S","R","A","F"];
-        let missing = required.filter(r => !global.has(r));
+        let missing = ["T","S","R","A","F"].filter(r => !global.has(r));
         return { pass: missing.length===0, missing };
     }
-    function generateRiskHTML(sequencesArr) {
-        if (!sequencesArr || sequencesArr.length === 0) return `<div>${t('riskEmpty')}</div>`;
+    
+    function generateRiskHTML(sequencesArr, acroData) {
+        if ((!sequencesArr || sequencesArr.length === 0) && (!acroData || acroData.length === 0)) return `<div>${t('riskEmpty')}</div>`;
         let html = '';
-        sequencesArr.forEach((seq, idx) => {
-            let codes = seq.trim().split(/[\s,]+/).filter(t => t);
-            if (codes.length === 0) return;
-            html += `<div style="margin-bottom: 15px;"><strong>${t('hybrid')} ${idx+1}</strong><br>`;
-            codes.forEach(code => {
-                let risk = getRiskMsg(code);
-                let val = difficultyMap[code];
-                let valStr = (val !== undefined) ? val.toFixed(2) : '?';
-                html += `<div class="risk-item"><span class="risk-code">${code} (${valStr})</span><br>${risk.replace(/\n/g, '<br>')}</div>`;
+        if (sequencesArr) {
+            sequencesArr.forEach((seq, idx) => {
+                let codes = seq.trim().split(/[\s,]+/).filter(t => t);
+                if (codes.length === 0) return;
+                html += `<div style="margin-bottom: 15px;"><strong>${t('hybrid')} ${idx+1}</strong><br>`;
+                codes.forEach(code => {
+                    let risk = getRiskMsg(code);
+                    let val = difficultyMap[code];
+                    let valStr = (val !== undefined) ? val.toFixed(2) : '?';
+                    html += `<div class="risk-item"><span class="risk-code">${code} (${valStr})</span><br>${risk}</div>`;
+                });
+                html += `</div><hr>`;
             });
-            html += `</div><hr>`;
-        });
+        }
+        if (acroData && acroData.length) {
+            html += `<div><strong>${t('acroTitle')}</strong><br>`;
+            acroData.forEach(acro => {
+                if (acro.code) {
+                    html += `<div class="risk-item"><span class="risk-code">${acro.code} (${(acro.value||0).toFixed(2)})</span><br>${getRiskMsg(acro.code)}</div>`;
+                }
+            });
+            html += `</div>`;
+        }
         return html || `<div>${t('riskEmpty')}</div>`;
     }
-
-    // ---------- Hybrid 数量规则 ----------
+ 
     function getRequiredHybridCount(ageGroup) {
         if (ageGroup === 'senior' || ageGroup === 'junior') return 6;
         if (ageGroup === 'youth') return 5;
-        if (ageGroup === '12U') return 4;
-        return 6;
+        return 4;
     }
-
-    // ---------- Acro 数量规则 ----------
+    
     function getRequiredAcroCount(discipline, ageGroup) {
         if (discipline === 'soloWomen' || discipline === 'soloMen') return 0;
-        if (discipline === 'duetWomen') {
-            if (ageGroup === 'senior' || ageGroup === 'junior') return 2;
-            return 1;
-        }
-        if (discipline === 'mixedDuet') {
-            if (ageGroup === 'senior' || ageGroup === 'junior') return 3;
-            if (ageGroup === 'youth') return 2;
-            return 2;
-        }
-        if (discipline === 'teamTech' || discipline === 'teamFree' || discipline === 'acro' || discipline === 'combo') {
-            return 3;
-        }
-        return 0;
+        if (discipline === 'duetWomen') return 2;
+        if (discipline === 'mixedDuet') return 3;
+        return 3;
     }
-
-    // ---------- 动态生成Hybrid输入框（增加实时错误检测）----------
+ 
+    // 全局变量
     let currentRequiredCount = 6;
     let sequences = [];
-    let hasConsented = localStorage.getItem('hybridCalculatorConsent') === 'true';
-    let currentHybridTotal = 0, currentGlobalPass = true, currentSequences = [];
-
+    let hasConsented = false;
+    let currentHybridTotal = 0;
+    let currentGlobalPass = true;
+    let currentSequences = [];
+    let acroList = [];
+    let currentRequiredAcro = 0;
+    let historyRecords = [];
+ 
+    // 存储函数
+    const STORAGE_KEY = "HybridPWA";
+    function loadHistory() { 
+        const data = localStorage.getItem(STORAGE_KEY);
+        historyRecords = data ? JSON.parse(data) : [];
+        return historyRecords;
+    }
+    function saveHistory(hist) { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist)); historyRecords = hist; }
+    
+    // Supabase 云端同步函数
+    async function syncToCloud() {
+        if (!supabaseEnabled) {
+            alert(currentLang === 'zh' ? "Supabase 未配置，请在代码中设置正确的 URL 和 anon key" : "Supabase not configured");
+            return;
+        }
+        
+        const syncBtn = document.getElementById('syncToCloudBtn');
+        const originalText = syncBtn.innerText;
+        syncBtn.innerText = currentLang === 'zh' ? "⏳ 同步中..." : "⏳ Syncing...";
+        syncBtn.disabled = true;
+        
+        try {
+            // 获取当前所有本地记录
+            const records = loadHistory();
+            
+            for (const record of records) {
+                // 检查是否已存在
+                const { data: existing } = await supabaseClient
+                    .from('difficulty_records')
+                    .select('id')
+                    .eq('local_id', record.id)
+                    .maybeSingle();
+                
+                if (!existing) {
+                    // 插入新记录
+                    const { error } = await supabaseClient
+                        .from('difficulty_records')
+                        .insert([{
+                            local_id: record.id,
+                            name: record.name,
+                            sequences: record.sequences,
+                            total_score: record.totalScore,
+                            global_pass: record.globalPass,
+                            athlete_name: record.info?.athleteName || '',
+                            event_name: record.info?.eventName || '',
+                            age_group: record.info?.ageGroup || '',
+                            theme: record.info?.theme || '',
+                            music_title: record.info?.musicTitle || '',
+                            notes: record.info?.notes || '',
+                            acrobatics: record.info?.acrobatics || [],
+                            risk_html: record.riskHTML || '',
+                            created_at: new Date(record.timestamp || Date.now()).toISOString()
+                        }]);
+                    
+                    if (error) console.error("Insert error:", error);
+                }
+            }
+            
+            alert(currentLang === 'zh' ? "✅ 已同步到云端！" : "✅ Synced to cloud!");
+            updateSyncStatus(true);
+        } catch (err) {
+            console.error("Sync error:", err);
+            alert(currentLang === 'zh' ? "❌ 同步失败: " + err.message : "❌ Sync failed: " + err.message);
+            updateSyncStatus(false);
+        } finally {
+            syncBtn.innerText = originalText;
+            syncBtn.disabled = false;
+        }
+    }
+    
+    async function loadFromCloud() {
+        if (!supabaseEnabled) {
+            alert(currentLang === 'zh' ? "Supabase 未配置" : "Supabase not configured");
+            return;
+        }
+        
+        const loadBtn = document.getElementById('loadFromCloudBtn');
+        const originalText = loadBtn.innerText;
+        loadBtn.innerText = currentLang === 'zh' ? "⏳ 加载中..." : "⏳ Loading...";
+        loadBtn.disabled = true;
+        
+        try {
+            const { data, error } = await supabaseClient
+                .from('difficulty_records')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                // 合并云端记录到本地
+                const localRecords = loadHistory();
+                const existingIds = new Set(localRecords.map(r => r.id));
+                
+                for (const cloudRecord of data) {
+                    if (!existingIds.has(cloudRecord.local_id)) {
+                        localRecords.push({
+                            id: cloudRecord.local_id,
+                            name: cloudRecord.name,
+                            sequences: cloudRecord.sequences,
+                            totalScore: cloudRecord.total_score,
+                            globalPass: cloudRecord.global_pass,
+                            info: {
+                                athleteName: cloudRecord.athlete_name,
+                                eventName: cloudRecord.event_name,
+                                ageGroup: cloudRecord.age_group,
+                                theme: cloudRecord.theme,
+                                musicTitle: cloudRecord.music_title,
+                                notes: cloudRecord.notes,
+                                acrobatics: cloudRecord.acrobatics
+                            },
+                            riskHTML: cloudRecord.risk_html,
+                            timestamp: new Date(cloudRecord.created_at).getTime()
+                        });
+                    }
+                }
+                
+                // 按时间排序
+                localRecords.sort((a, b) => b.timestamp - a.timestamp);
+                saveHistory(localRecords);
+                renderHistory();
+                alert(currentLang === 'zh' ? `✅ 从云端加载了 ${data.length} 条记录` : `✅ Loaded ${data.length} records from cloud`);
+            } else {
+                alert(currentLang === 'zh' ? "云端暂无记录" : "No records in cloud");
+            }
+            updateSyncStatus(true);
+        } catch (err) {
+            console.error("Load error:", err);
+            alert(currentLang === 'zh' ? "❌ 加载失败: " + err.message : "❌ Load failed: " + err.message);
+            updateSyncStatus(false);
+        } finally {
+            loadBtn.innerText = originalText;
+            loadBtn.disabled = false;
+        }
+    }
+    
+    function updateSyncStatus(success) {
+        const statusSpan = document.getElementById('syncStatus');
+        if (statusSpan) {
+            if (success) {
+                statusSpan.innerHTML = '☁️ ' + t('cloudSynced');
+                statusSpan.className = 'sync-status synced';
+            } else {
+                statusSpan.innerHTML = '⚠️ ' + t('syncError');
+                statusSpan.className = 'sync-status error';
+            }
+            setTimeout(() => {
+                if (statusSpan) statusSpan.style.opacity = '0.5';
+            }, 3000);
+        }
+    }
+    
+    function addRecord(name, seqs, hyTotal, acroData, total, pass, info, riskHtml) {
+        let hist = loadHistory();
+        const newRecord = { 
+            id: Date.now(), 
+            name, 
+            sequences: [...seqs], 
+            totalScore: hyTotal, 
+            globalPass: pass, 
+            info: {...info, acrobatics: acroData}, 
+            riskHTML: riskHtml,
+            timestamp: Date.now()
+        };
+        hist.unshift(newRecord);
+        if (hist.length>50) hist.pop();
+        saveHistory(hist);
+        renderHistory();
+        
+        // 如果 Supabase 可用，自动同步
+        if (supabaseEnabled) {
+            setTimeout(() => syncToCloud(), 500);
+        }
+    }
+    
+    function deleteRecord(id) {
+        let hist = loadHistory().filter(r => r.id != id);
+        saveHistory(hist);
+        renderHistory();
+    }
+    
+    function renderHistory() {
+        let tbody = document.getElementById('historyBody');
+        if (!tbody) return;
+        let hist = loadHistory();
+        if (!hist.length) { tbody.innerHTML = `<tr><td colspan="4">${t('noRecord')}</td></tr>`; return; }
+        let html = '';
+        hist.forEach(rec => {
+            let status = rec.globalPass ? '✅' : '❌';
+            html += `<tr><td style="max-width:140px;">${rec.name}</td><td>${rec.totalScore.toFixed(2)}</td><td>${status}</td><td><button class="load-btn" data-id="${rec.id}">${t('load')}</button> <button class="delete-btn" data-id="${rec.id}">${t('delete')}</button></td></tr>`;
+        });
+        tbody.innerHTML = html;
+        document.querySelectorAll('.load-btn').forEach(btn => btn.addEventListener('click', () => { 
+            let id = parseInt(btn.getAttribute('data-id')); 
+            let rec = loadHistory().find(r => r.id === id); 
+            if (rec) loadRecordToEditor(rec); 
+        }));
+        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => { 
+            let id = parseInt(btn.getAttribute('data-id')); 
+            deleteRecord(id); 
+        }));
+    }
+    
+    function loadRecordToEditor(rec) {
+        if (rec.sequences.length !== currentRequiredCount) {
+            rebuildHybridInputs(rec.sequences.length);
+        }
+        for (let i=0; i<rec.sequences.length; i++) {
+            let ta = document.getElementById(`seq-${i}`);
+            if (ta) ta.value = rec.sequences[i] || '';
+        }
+        if (rec.info) {
+            let fields = ['athleteName', 'eventName', 'ageGroup', 'theme', 'musicTitle', 'notes'];
+            fields.forEach(f => { let el = document.getElementById(f); if(el && rec.info[f]) el.value = rec.info[f]; });
+            if (rec.info.acrobatics) {
+                let needed = getRequiredAcroCount(document.getElementById('disciplineSelect')?.value || 'duetWomen', document.getElementById('ageCategorySelect')?.value || 'senior');
+                rebuildAcroInputs(needed);
+                for (let i=0; i<rec.info.acrobatics.length && i<needed; i++) {
+                    let inputs = document.querySelectorAll('.acro-row');
+                    if (inputs[i]) {
+                        let codeInput = inputs[i].querySelector('.acro-code');
+                        let valInput = inputs[i].querySelector('.acro-val');
+                        if (codeInput) codeInput.value = rec.info.acrobatics[i].code;
+                        if (valInput) valInput.value = rec.info.acrobatics[i].value;
+                        acroList[i] = { code: rec.info.acrobatics[i].code, value: rec.info.acrobatics[i].value };
+                    }
+                }
+            }
+        }
+        performCalculation();
+    }
+ 
+    function getAcroTotal() { return acroList.reduce((sum, a) => sum + (a.value || 0), 0); }
+ 
+    function performCalculation() {
+        let hyTotal = 0, allFamilies = [], seqData = [];
+        let actualCount = 0;
+        for (let i = 0; i < currentRequiredCount; i++) {
+            let ta = document.getElementById(`seq-${i}`);
+            if (ta) {
+                sequences[i] = ta.value;
+                actualCount++;
+            } else { sequences[i] = ""; }
+            seqData[i] = sequences[i];
+            let { finalScore, unknown, details } = parseSequence(sequences[i]);
+            hyTotal += finalScore;
+            let scoreSpan = document.getElementById(`score-${i}`);
+            if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ⚠️ ${unknown.join(',')}` : '');
+            let { errors, warnings, families } = checkHybrid(sequences[i]);
+            let div = document.getElementById(`check-${i}`);
+            if (div) {
+                let html = errors.length ? `<div style="color:red;">${errors.join('<br>')}</div>` : `<div style="color:green;">✅ ${t('hybridPass')}</div>`;
+                if (unknown.length) html += `<div style="color:red;">⚠️ ${t('unknownCode')}: ${unknown.join(',')}</div>`;
+                html += `<div class="code-values">${t('codeValues')} ${details.map(d => `${d.code}:${d.value === '?' ? '?' : d.value.toFixed(2)}`).join(', ')}</div>`;
+                div.innerHTML = html;
+            }
+            allFamilies.push(families);
+        }
+        let { pass, missing } = checkGlobalFamilies(allFamilies);
+        let acroTotal = getAcroTotal();
+        let finalTotal = hyTotal + acroTotal;
+        let totalDiv = document.getElementById('totalScore');
+        let msg = pass ? t('globalPass') : t('globalFail') + missing.join(',');
+        let countMsg = (actualCount !== currentRequiredCount) ? ` ⚠️ ${t('warningCount')}` : ` ✓ ${t('countOk')}`;
+        if (totalDiv) {
+            totalDiv.style.background = (actualCount === currentRequiredCount && pass) ? "#1e3c72" : "#b71c1c";
+            totalDiv.innerHTML = `🏆 ${t('totalWithAcro')}: ${finalTotal.toFixed(2)} &nbsp;&nbsp; ${msg}${countMsg}<br><span style="font-size:0.7rem;">📊 ${t('hybrid')}: ${hyTotal.toFixed(2)} | 🏅 ${t('acroTitle')}: ${acroTotal.toFixed(2)}</span>`;
+        }
+        currentHybridTotal = hyTotal;
+        currentGlobalPass = pass;
+        currentSequences = [...seqData];
+        
+        let riskContainer = document.getElementById('riskReportContainer');
+        if (riskContainer && riskContainer.style.display !== 'none') {
+            document.getElementById('riskContent').innerHTML = generateRiskHTML(currentSequences, acroList);
+        }
+    }
+ 
+    function showRisk() {
+        let html = generateRiskHTML(currentSequences, acroList);
+        document.getElementById('riskContent').innerHTML = html;
+        document.getElementById('riskReportContainer').style.display = 'block';
+    }
+    
+    function showSuggestions() {
+        let totalScore = currentHybridTotal + getAcroTotal();
+        let sugg = [];
+        if (currentLang === 'zh') {
+            sugg.push(`📊 总难度：${totalScore.toFixed(2)}`);
+            if (totalScore > 35) sugg.push(`⚠️ 难度偏高(>35)，建议降低`);
+            else if (totalScore < 20) sugg.push(`✅ 难度偏低，可增加高难度动作`);
+            let families = new Set();
+            for (let seq of currentSequences) {
+                let codes = seq.trim().split(/[\s,]+/);
+                codes.forEach(c => families.add(getFamily(c)));
+            }
+            let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
+            if (missing.length) sugg.push(`❌ 缺少家族：${missing.join(', ')}`);
+            sugg.push(`💡 建议：高难度动作放在开头或结尾`);
+        } else {
+            sugg.push(`📊 Total: ${totalScore.toFixed(2)}`);
+            if (totalScore > 35) sugg.push(`⚠️ High difficulty (>35), reduce`);
+            let families = new Set();
+            for (let seq of currentSequences) {
+                let codes = seq.trim().split(/[\s,]+/);
+                codes.forEach(c => families.add(getFamily(c)));
+            }
+            let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
+            if (missing.length) sugg.push(`❌ Missing families: ${missing.join(', ')}`);
+        }
+        let modalHtml = `<div id="suggestionsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px;"><h3>${currentLang === 'zh' ? '💡 设计建议' : '💡 Suggestions'}</h3><ul>${sugg.map(s => `<li>${s}</li>`).join('')}</ul><button onclick="this.closest('#suggestionsModal').remove()">${t('close')}</button></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+ 
     function rebuildHybridInputs(requiredCount) {
         const container = document.getElementById('seqContainer');
         if (!container) return;
         container.innerHTML = '';
         sequences = new Array(requiredCount).fill("");
         for (let i = 0; i < requiredCount; i++) {
-            let oldVal = (i < currentRequiredCount && document.getElementById(`seq-${i}`)) ? document.getElementById(`seq-${i}`).value : (sequences[i] || "");
-            sequences[i] = oldVal || "T8 A8 F5a F5a F7 RC1 RC1 F8a A1c A7 2R1 F6c";
+            sequences[i] = "T8 A8 F5a F5a F7 RC1";
             const card = document.createElement('div');
             card.className = 'seq-card';
             card.innerHTML = `
@@ -550,55 +906,15 @@
             `;
             container.appendChild(card);
             const textarea = document.getElementById(`seq-${i}`);
-            // 实时错误检测
-            const updateLiveErrors = () => {
-                const raw = textarea.value;
-                const tokens = raw.trim().split(/[\s,]+/).filter(t => t);
-                const unknown = [];
-                tokens.forEach(code => {
-                    if (!difficultyMap[code]) unknown.push(code);
-                });
-                const errorsDiv = document.getElementById(`live-error-${i}`);
-                if (errorsDiv) {
-                    if (unknown.length > 0) {
-                        errorsDiv.innerHTML = `⚠️ ${t('unknownCode')}: ${unknown.join(', ')}`;
-                        errorsDiv.style.display = 'block';
-                    } else if (tokens.length < 5) {
-                        errorsDiv.innerHTML = `⚠️ ${currentLang==='zh' ? '动作不足5个' : 'Less than 5 moves'}`;
-                        errorsDiv.style.display = 'block';
-                    } else {
-                        errorsDiv.innerHTML = '';
-                        errorsDiv.style.display = 'none';
-                    }
-                }
-            };
             textarea.addEventListener('input', () => {
                 sequences[i] = textarea.value;
-                updateLiveErrors();
                 if (hasConsented) performCalculation();
             });
-            textarea.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    checkConsentAndCalculate();
-                }
-            });
-            // 添加实时错误显示区域
-            const liveErrorDiv = document.createElement('div');
-            liveErrorDiv.id = `live-error-${i}`;
-            liveErrorDiv.className = 'live-errors';
-            liveErrorDiv.style.display = 'none';
-            card.appendChild(liveErrorDiv);
-            // 初始调用一次
-            updateLiveErrors();
         }
         currentRequiredCount = requiredCount;
+        if (hasConsented) performCalculation();
     }
-
-    // ---------- Acro 动态生成 ----------
-    let acroList = [];
-    let currentRequiredAcro = 0;
-
+ 
     function rebuildAcroInputs(requiredCount) {
         const container = document.getElementById('acroList');
         if (!container) return;
@@ -609,32 +925,23 @@
             const row = document.createElement('div');
             row.className = 'acro-row';
             row.innerHTML = `
-                <input type="text" class="acro-code" placeholder="例: L>>" style="width:130px;">
+                <input type="text" class="acro-code" placeholder="例: L" style="width:130px;">
                 <input type="number" step="0.01" class="acro-val" value="0" style="width:90px;">
             `;
             const codeInput = row.querySelector('.acro-code');
             const valInput = row.querySelector('.acro-val');
             const idx = i;
-            let lastErrorCode = '';
             codeInput.addEventListener('input', (e) => {
                 const newCode = e.target.value.trim();
                 const mapped = acroMap[newCode];
                 if (mapped !== undefined) {
                     valInput.value = mapped;
-                    acroList[idx].code = newCode;
-                    acroList[idx].value = mapped;
+                    acroList[idx] = { code: newCode, value: mapped };
                     codeInput.classList.remove('error');
                 } else {
                     valInput.value = 0;
-                    acroList[idx].code = newCode;
-                    acroList[idx].value = 0;
+                    acroList[idx] = { code: newCode, value: 0 };
                     codeInput.classList.add('error');
-                    if (newCode !== '' && newCode !== lastErrorCode) {
-                        lastErrorCode = newCode;
-                        alert(currentLang === 'zh' ? `托举代码“${newCode}”未识别，请检查官方代码。` : `Acro code "${newCode}" not recognized.`);
-                    } else if (newCode === '') {
-                        codeInput.classList.remove('error');
-                    }
                 }
                 if (hasConsented) performCalculation();
             });
@@ -647,102 +954,29 @@
         currentRequiredAcro = requiredCount;
         if (hasConsented) performCalculation();
     }
-
-    function getAcroTotal() {
-        return acroList.reduce((sum, a) => sum + (a.value || 0), 0);
-    }
-
-    // ---------- 主计算函数 ----------
-    function performCalculation() {
-        const requiredCount = currentRequiredCount;
-        let hyTotal = 0, allFamilies = [], seqData = [];
-        let actualCount = 0;
-        for (let i = 0; i < requiredCount; i++) {
-            let ta = document.getElementById(`seq-${i}`);
-            if (ta) {
-                sequences[i] = ta.value;
-                actualCount++;
-            } else {
-                sequences[i] = "";
-            }
-            seqData[i] = sequences[i];
-            let { finalScore, unknown, details } = parseSequence(sequences[i]);
-            hyTotal += finalScore;
-            let scoreSpan = document.getElementById(`score-${i}`);
-            if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ⚠️ ${unknown.join(',')}` : '');
-            let { errors, warnings, families } = checkHybrid(sequences[i]);
-            let div = document.getElementById(`check-${i}`);
-            if (div) {
-                let html = errors.length ? `<div class="check-fail">${errors.join('<br>')}</div>` : `<div class="check-pass">✅ ${t('hybridPass')}</div>`;
-                html += `<div style="font-size:0.7rem;">${warnings.join(' | ')}</div>`;
-                if (unknown.length) html += `<div class="check-fail">⚠️ ${t('unknownCode')}: ${unknown.join(',')}</div>`;
-                html += `<div class="code-values">${t('codeValues')} ${details.map(d => `${d.code}:${d.value === '?' ? '?' : d.value.toFixed(2)}`).join(', ')}</div>`;
-                div.innerHTML = html;
-            }
-            allFamilies.push(families);
-        }
-        let { pass, missing } = checkGlobalFamilies(allFamilies);
-        let totalDiv = document.getElementById('totalScore');
-        let msg = pass ? t('globalPass') : t('globalFail') + missing.join(',');
-        let acroTotal = getAcroTotal();
-        let finalTotal = hyTotal + acroTotal;
-        let countMsg = "";
-        if (actualCount !== requiredCount) {
-            countMsg = ` ⚠️ ${t('warningCount')} (应有${requiredCount}个Hybrid，实际${actualCount}个)`;
-            totalDiv.style.background = "#b71c1c";
-        } else {
-            countMsg = ` ✓ ${t('countOk')}`;
-            totalDiv.style.background = pass ? "#1e3c72" : "#b71c1c";
-        }
-        totalDiv.innerHTML = `🏆 ${t('totalWithAcro')}: ${finalTotal.toFixed(2)} &nbsp;&nbsp; ${msg}${countMsg}<br><span style="font-size:0.7rem;">📊 ${t('hybrid')}: ${hyTotal.toFixed(2)} | 🏅 ${t('acroTitle')}: ${acroTotal.toFixed(2)} (${acroList.length}/${currentRequiredAcro})</span>`;
-        currentHybridTotal = hyTotal;
-        currentGlobalPass = pass;
-        currentSequences = [...seqData];
-        if (document.getElementById('riskContent') && document.getElementById('riskReportContainer').style.display !== 'none') {
-            document.getElementById('riskContent').innerHTML = generateRiskHTML(currentSequences);
-        }
-        if (hasConsented) {
-            autoSubmitData('calculate', acroTotal);
-        }
-    }
-
-    async function autoSubmitData(actionType = 'calculate', acroTotal = 0) {
-        const athleteName = document.getElementById('athleteName').value;
-        const eventName = document.getElementById('eventName').value;
-        const ageGroupSelect = document.getElementById('ageCategorySelect');
-        const ageGroup = ageGroupSelect.options[ageGroupSelect.selectedIndex]?.text || '';
-        const disciplineSelect = document.getElementById('disciplineSelect');
-        const discipline = disciplineSelect.options[disciplineSelect.selectedIndex]?.text || '';
-        const theme = document.getElementById('theme').value;
-        const musicTitle = document.getElementById('musicTitle').value;
-        const notes = document.getElementById('notes').value;
-        const hybridValues = [];
-        for (let i=0; i<currentRequiredCount; i++) {
-            hybridValues.push(document.getElementById(`seq-${i}`)?.value || '');
-        }
-        const totalScore = currentHybridTotal + acroTotal;
-        const globalPass = currentGlobalPass;
-        const riskContent = document.getElementById('riskContent')?.innerText || '';
-        const acroData = acroList.map(a => ({ code: a.code, value: a.value }));
-        const payload = {
-            action: actionType,
-            athleteName, eventName, ageGroup, discipline, theme, musicTitle, notes,
-            hybrids: hybridValues,
-            totalScore, globalPass, riskReport: riskContent,
-            acrobatics: acroData
+ 
+    function saveCurrentRecord() {
+        let name = prompt(t('savePrompt'), new Date().toLocaleString());
+        if (!name) return;
+        let info = {
+            athleteName: document.getElementById('athleteName')?.value || '',
+            eventName: document.getElementById('eventName')?.value || '',
+            ageGroup: document.getElementById('ageGroup')?.value || '',
+            theme: document.getElementById('theme')?.value || '',
+            musicTitle: document.getElementById('musicTitle')?.value || '',
+            notes: document.getElementById('notes')?.value || '',
+            acrobatics: acroList.map(a => ({ code: a.code, value: a.value }))
         };
-        try {
-            const response = await fetch('/api/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (response.ok) console.log(`Auto-submit success (action: ${actionType})`);
-            else console.warn(`Auto-submit failed (action: ${actionType})`);
-        } catch (err) { console.error("Auto-submit error:", err); }
+        let riskHtml = generateRiskHTML(currentSequences, acroList);
+        let total = currentHybridTotal + getAcroTotal();
+        addRecord(name, currentSequences, currentHybridTotal, acroList, total, currentGlobalPass, info, riskHtml);
+        alert(t('savePrompt') + " " + name);
     }
-
-    // ---------- 导出 Excel ----------
+    
+    function clearHistory() {
+        if (confirm(t('clearConfirm'))) { localStorage.removeItem(STORAGE_KEY); renderHistory(); }
+    }
+    
     function exportExcel() {
         if (!currentSequences.length && !loadHistory().length) {
             alert(t('noDataExport'));
@@ -750,298 +984,98 @@
         }
         const wb = XLSX.utils.book_new();
         const currentRows = [];
-        const discSelect = document.getElementById('disciplineSelect');
-        const discipline = discSelect.options[discSelect.selectedIndex]?.text || '';
-        const ageSelect = document.getElementById('ageCategorySelect');
-        const ageGroup = ageSelect.options[ageSelect.selectedIndex]?.text || '';
-        const athleteName = document.getElementById('athleteName').value;
-        const eventName = document.getElementById('eventName').value;
-        const theme = document.getElementById('theme').value;
-        const musicTitle = document.getElementById('musicTitle').value;
-        const notes = document.getElementById('notes').value;
-        const riskSummary = document.getElementById('riskContent')?.innerText?.substring(0, 500) || '';
-        const hybridData = [];
-        for (let i=0; i<currentRequiredCount; i++) {
-            hybridData.push(document.getElementById(`seq-${i}`)?.value || '');
-        }
-        const acroData = acroList.map(a => `${a.code}:${a.value.toFixed(2)}`).join('; ');
-        const acroTotal = getAcroTotal();
-        const total = currentHybridTotal + acroTotal;
-        const headers = ["项目","年龄组","姓名","比赛","主题","音乐","备注","Hybrid总分","托举明细","托举总分","总分(含托举)","规则通过", ...hybridData.map((_,idx)=>`Hybrid${idx+1}`), "风险报告摘要"];
-        const row = [discipline, ageGroup, athleteName, eventName, theme, musicTitle, notes, currentHybridTotal.toFixed(2), acroData, acroTotal.toFixed(2), total.toFixed(2), currentGlobalPass ? "是" : "否", ...hybridData, riskSummary];
+        const headers = ["项目","年龄组","姓名","比赛","总分", ...currentSequences.map((_,idx)=>`Hybrid${idx+1}`)];
+        const row = [
+            document.getElementById('disciplineSelect')?.options[document.getElementById('disciplineSelect').selectedIndex]?.text || '',
+            document.getElementById('ageCategorySelect')?.options[document.getElementById('ageCategorySelect').selectedIndex]?.text || '',
+            document.getElementById('athleteName')?.value || '',
+            document.getElementById('eventName')?.value || '',
+            (currentHybridTotal + getAcroTotal()).toFixed(2),
+            ...currentSequences
+        ];
         currentRows.push(headers, row);
         const wsCurrent = XLSX.utils.aoa_to_sheet(currentRows);
-        wsCurrent['!cols'] = hybridData.map(()=>({wch:50}));
-        wsCurrent['!cols'][0] = {wch:12}; wsCurrent['!cols'][1]={wch:12}; wsCurrent['!cols'][2]={wch:15}; wsCurrent['!cols'][3]={wch:20}; wsCurrent['!cols'][4]={wch:15}; wsCurrent['!cols'][5]={wch:20}; wsCurrent['!cols'][6]={wch:20}; wsCurrent['!cols'][7]={wch:10}; wsCurrent['!cols'][8]={wch:30}; wsCurrent['!cols'][9]={wch:10}; wsCurrent['!cols'][10]={wch:12}; wsCurrent['!cols'][11]={wch:8}; wsCurrent['!cols'][wsCurrent['!cols'].length-1]={wch:60};
         XLSX.utils.book_append_sheet(wb, wsCurrent, "当前编排");
+        
         let hist = loadHistory();
         if (hist.length > 0) {
-            const histRows = [];
-            const histHeaders = ["名称/时间","总分(无托举)","状态","托举明细","托举总分","姓名","比赛","年龄组","主题","音乐","备注", ...(hist[0].sequences || []).map((_,idx)=>`Hybrid${idx+1}`), "时间戳","风险报告"];
-            histRows.push(histHeaders);
+            const histRows = [["名称","总分","状态","姓名","比赛","年龄组","主题","音乐","备注", ...currentSequences.map((_,idx)=>`Hybrid${idx+1}`), "时间"]];
             hist.forEach(rec => {
                 let info = rec.info || {};
-                let seqs = rec.sequences || [];
-                let acroStr = (rec.acrobatics || []).map(a=>`${a.code}:${a.value}`).join('; ');
-                let acroSum = (rec.acrobatics || []).reduce((s,a)=>s+(a.value||0),0);
-                let rowData = [rec.name, rec.totalScore.toFixed(2), rec.globalPass ? "通过" : "不通过", acroStr, acroSum.toFixed(2), info.athleteName||"", info.eventName||"", info.ageGroup||"", info.theme||"", info.musicTitle||"", info.notes||"", ...seqs, new Date(rec.timestamp).toLocaleString(), (rec.riskHTML||"").replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').substring(0,500)];
-                histRows.push(rowData);
+                histRows.push([rec.name, rec.totalScore.toFixed(2), rec.globalPass ? "通过" : "不通过", info.athleteName || "", info.eventName || "", info.ageGroup || "", info.theme || "", info.musicTitle || "", info.notes || "", ...rec.sequences, new Date(rec.timestamp).toLocaleString()]);
             });
             const wsHist = XLSX.utils.aoa_to_sheet(histRows);
-            wsHist['!cols'] = seqs.map(()=>({wch:50}));
             XLSX.utils.book_append_sheet(wb, wsHist, "历史记录");
         }
         XLSX.writeFile(wb, `hybrid_export_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-        if (hasConsented && currentHybridTotal !== undefined) autoSubmitData('export_excel', getAcroTotal());
     }
-
-    // ---------- 隐私同意 ----------
-    function checkConsentAndCalculate() {
-        if (hasConsented) performCalculation();
-        else showPrivacyModalWithConsent();
+    
+    function exportAllRecords() {
+        let hist = loadHistory();
+        if (hist.length === 0) { alert(t('noDataExport')); return; }
+        const wb = XLSX.utils.book_new();
+        const rows = [["名称","总分","状态","姓名","比赛","年龄组","Hybrid1","Hybrid2","Hybrid3","Hybrid4","Hybrid5","Hybrid6","时间"]];
+        hist.forEach(rec => {
+            let info = rec.info || {};
+            rows.push([rec.name, rec.totalScore.toFixed(2), rec.globalPass ? "通过" : "不通过", info.athleteName || "", info.eventName || "", info.ageGroup || "", ...rec.sequences, new Date(rec.timestamp).toLocaleString()]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, "保存记录");
+        XLSX.writeFile(wb, `hybrid_saved_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
     }
-    function showPrivacyModalWithConsent() {
+ 
+    function showPrivacyModal() {
         const modal = document.getElementById('privacyModal');
-        const contentDiv = document.getElementById('privacyContent');
-        const lang = currentLang;
-        if (lang === 'en') {
-            contentDiv.innerHTML = `
-                <h2>Privacy Policy & Disclaimer</h2>
-                <p><strong>Privacy Policy:</strong> When you calculate, your routine data will be automatically submitted to improve the calculator. We do not store IP addresses or share personal data.</p>
-                <p><strong>Disclaimer:</strong> This tool is for informational purposes only. No guarantee of accuracy. Use at your own risk.</p>
-                <p><strong>To use the calculator, you must agree to the above terms.</strong></p>
-                <button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button>
-                <button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px; background:#6c757d;">View Full Policy</button>
-            `;
+        const content = document.getElementById('privacyContent');
+        if (currentLang === 'zh') {
+            content.innerHTML = `<h2>隐私政策与免责声明</h2><p><strong>隐私政策：</strong>您的编排数据会保存在本地浏览器中。如果启用云端同步，数据将加密传输到 Supabase 云端，仅用于跨设备访问和数据备份。</p><p><strong>免责声明：</strong>本工具仅供参考，不保证准确性，使用风险自负。</p><p><strong>使用计算器前您必须同意以上条款。</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
         } else {
-            contentDiv.innerHTML = `
-                <h2>Privacy Policy & Disclaimer</h2>
-                <p><strong>Privacy Policy:</strong> When you calculate, your routine data will be automatically submitted to improve the calculator. We do not store IP addresses or share personal data.</p>
-                <p><strong>Disclaimer:</strong> This tool is for informational purposes only. No guarantee of accuracy. Use at your own risk.</p>
-                <p><strong>To use the calculator, you must agree to the above terms.</strong></p>
-                <button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button>
-                <button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px; background:#6c757d;">View Full Policy</button>
-            `;
+            content.innerHTML = `<h2>Privacy & Disclaimer</h2><p><strong>Privacy:</strong> Your data is stored locally. Cloud sync uses encrypted transmission.</p><p><strong>Disclaimer:</strong> For reference only. Use at your own risk.</p><p><strong>You must agree to continue.</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
         }
         modal.style.display = 'flex';
-        const agreeBtn = document.getElementById('consentAgreeBtn');
-        if (agreeBtn) agreeBtn.onclick = () => { hasConsented = true; localStorage.setItem('hybridCalculatorConsent', 'true'); modal.style.display = 'none'; performCalculation(); };
-        const fullBtn = document.getElementById('viewFullPolicyBtn');
-        if (fullBtn) fullBtn.onclick = () => showFullPolicyModal();
+        document.getElementById('consentAgreeBtn').onclick = () => {
+            hasConsented = true;
+            localStorage.setItem('hybridCalculatorConsent', 'true');
+            modal.style.display = 'none';
+            performCalculation();
+        };
+        document.getElementById('viewFullPolicyBtn').onclick = () => showFullPolicyModal();
     }
+    
     function showFullPolicyModal() {
         const modal = document.getElementById('fullPolicyModal');
-        const contentDiv = document.getElementById('fullPolicyContent');
-        const lang = currentLang;
-        if (lang === 'en') {
-            contentDiv.innerHTML = `
-                <h3>Privacy Policy</h3>
-                <p>We collect routine data (athlete name, event, age group, theme, music, hybrid codes, scores, risk analysis, acrobatics data) when you click Calculate or Export Excel. This data is used to improve the calculator and analyze trends. We do not store IP addresses or share personal information with third parties. You may request deletion of your data by contacting privacy@yourdomain.com.</p>
-                <h3>Disclaimer</h3>
-                <p>This tool is provided for informational and educational purposes only. While we strive for accuracy, the difficulty scores, Base Mark risk analysis, and rule compliance checks are generated based on available World Aquatics rules and may contain errors or be outdated. We do not guarantee completeness, accuracy, or timeliness. You are solely responsible for verifying results against official rules. This tool is not an official judging device and does not replace certified officials. To the fullest extent permitted by law, the developer shall not be liable for any damages arising from use of this tool. Use at your own risk.</p>
-                <p><small>Last updated: June 2026</small></p>
-            `;
+        const content = document.getElementById('fullPolicyContent');
+        if (currentLang === 'zh') {
+            content.innerHTML = `<h3>完整隐私政策</h3><p>我们收集编排数据以改进计算器。数据存储在您的本地浏览器中。云端同步功能需要您手动触发，数据会加密传输到 Supabase。</p><h3>免责声明</h3><p>本工具非官方评判设备，使用风险自负。</p><p>如需删除数据，请联系: privacy@swimcalc.com</p>`;
         } else {
-            contentDiv.innerHTML = `
-                <h3>隐私政策</h3>
-                <p>当您点击“计算”或“导出Excel”时，我们会收集您的编排数据（姓名、比赛、年龄组、主题、音乐、Hybrid代码、分数、风险分析、托举数据）。这些数据用于改进计算器和分析趋势。我们不会存储IP地址，也不会与第三方分享个人信息。如需删除您的数据，请联系 privacy@yourdomain.com。</p>
-                <h3>免责声明</h3>
-                <p>本工具仅供信息参考和教育用途。我们尽力确保准确，但难度分、Base Mark风险分析及规则合规性检查基于现有世界泳联规则，可能包含错误或已过时。我们不保证完整性、准确性或时效性。您有责任对照官方规则验证结果。本工具不是官方评判设备，不能替代认证官员的判断。在法律允许的最大范围内，开发者不对因使用本工具而产生的任何损害承担责任。使用风险自负。</p>
-                <p><small>最后更新：2026年6月</small></p>
-            `;
+            content.innerHTML = `<h3>Full Privacy Policy</h3><p>We collect routine data to improve the calculator. Data is stored locally. Cloud sync is manual and encrypted.</p><h3>Disclaimer</h3><p>This is not an official judging tool. Use at your own risk.</p>`;
         }
         modal.style.display = 'flex';
     }
-    function closeFullPolicyModal() { document.getElementById('fullPolicyModal').style.display = 'none'; }
+    
+    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+    function closeFullModal() { document.getElementById('fullPolicyModal').style.display = 'none'; }
     function closePrivacyModal() { document.getElementById('privacyModal').style.display = 'none'; }
-
-    function showRisk() {
-        let html = generateRiskHTML(currentSequences);
-        if (acroList.length) {
-            html += `<div><strong>Acrobatics</strong><br>`;
-            acroList.forEach(acro => html += `<div class="risk-item"><span class="risk-code">${acro.code} (${acro.value.toFixed(2)})</span><br>${getRiskMsg(acro.code)}</div>`);
-            html += `</div>`;
-        }
-        document.getElementById('riskContent').innerHTML = html;
-        document.getElementById('riskReportContainer').style.display = 'block';
-        document.getElementById('riskReportContainer').scrollIntoView({ behavior: 'smooth' });
+ 
+    function checkConsentAndCalculate() {
+        if (hasConsented) performCalculation();
+        else showPrivacyModal();
     }
-    function showSuggestions() {
-        let suggestions = generateSuggestions();
-        let modalHtml = `<div style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;" id="suggestionsModal"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px; max-height:80%; overflow-y:auto;"><h3>${currentLang === 'zh' ? '💡 设计建议' : '💡 Design Suggestions'}</h3><ul style="padding-left:20px;">${suggestions.map(s => `<li style="margin-bottom:8px;">${s}</li>`).join('')}</ul><button onclick="document.getElementById('suggestionsModal').remove()" style="margin-top:15px;">${t('close')}</button></div></div>`;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-    function generateSuggestions() {
-        let totalScore = currentHybridTotal + getAcroTotal();
-        let highRisk = new Set();
-        for (let seq of currentSequences) {
-            let codes = seq.trim().split(/[\s,]+/);
-            codes.forEach(c => { if (riskMessages[c]) highRisk.add(c); });
-        }
-        let disc = document.getElementById('disciplineSelect')?.value || '';
-        let age = document.getElementById('ageCategorySelect')?.value || '';
-        let discText = currentLang==='zh' ? getDisciplineTextZh(disc) : getDisciplineTextEn(disc);
-        let ageText = currentLang==='zh' ? getAgeTextZh(age) : getAgeTextEn(age);
-        let sugg = [];
-        if (currentLang==='zh') {
-            sugg.push(`📊 项目：${discText} | 年龄组：${ageText}`);
-            sugg.push(`📊 Hybrid总难度分：${currentHybridTotal.toFixed(2)}`);
-            let required = getRequiredHybridCount(age);
-            let actual = currentSequences.length;
-            if (actual !== required) sugg.push(`⚠️ Hybrid数量不正确：应有${required}个，实际${actual}个。`);
-            let requiredAcro = getRequiredAcroCount(disc, age);
-            if (requiredAcro > 0 && acroList.length !== requiredAcro) sugg.push(`⚠️ 托举数量：当前${acroList.length}个，需要${requiredAcro}个。`);
-            if (disc === 'soloWomen' || disc === 'soloMen') {
-                sugg.push(`📌 单人项目：不包含托举，总难度分即Hybrid分。`);
-                if (currentHybridTotal > 32) sugg.push(`⚠️ 单人难度偏高（>32），建议控制。`);
-            } else {
-                let acroTotal = getAcroTotal();
-                sugg.push(`📌 双人/集体项目：托举总分：${acroTotal.toFixed(2)}，总难度分：${totalScore.toFixed(2)}`);
-                if (age === '12U' && acroTotal > 2.8) sugg.push(`⚠️ 12岁以下组托举难度不得超过2.8（参照安全限制）。`);
-                if (age === 'youth' && acroTotal > 3.2) sugg.push(`⚠️ 青年组托举难度建议不超过3.2。`);
-            }
-            if (totalScore > 35) sugg.push(`⚠️ 难度偏高（>35），建议降低1-2分。`);
-            else if (totalScore < 25) sugg.push(`✅ 难度适中，可适当增加高难度动作。`);
-            else sugg.push(`✅ 难度适中。`);
-            if (highRisk.size) sugg.push(`⚠️ 高风险动作：${[...highRisk].join(', ')}。建议替换。`);
-            let families = new Set();
-            for (let seq of currentSequences) {
-                let codes = seq.trim().split(/[\s,]+/);
-                codes.forEach(c => families.add(getFamily(c)));
-            }
-            let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`❌ 缺少家族：${missing.join(', ')}。`);
-            sugg.push(`💡 建议：难度最高的Hybrid放在开头或结尾，高风险动作分散。`);
-        } else {
-            // 英文版略
-            sugg.push(`📊 Discipline: ${discText} | Age: ${ageText}`);
-            sugg.push(`📊 Hybrid Total: ${currentHybridTotal.toFixed(2)}`);
-            let required = getRequiredHybridCount(age);
-            let actual = currentSequences.length;
-            if (actual !== required) sugg.push(`⚠️ Hybrid count: should be ${required}, but ${actual}.`);
-            let requiredAcro = getRequiredAcroCount(disc, age);
-            if (requiredAcro > 0 && acroList.length !== requiredAcro) sugg.push(`⚠️ Acro count: ${acroList.length}, required ${requiredAcro}.`);
-            if (disc === 'soloWomen' || disc === 'soloMen') {
-                if (currentHybridTotal > 32) sugg.push(`⚠️ Solo difficulty high (>32).`);
-            } else {
-                let acroTotal = getAcroTotal();
-                sugg.push(`📌 Acro total: ${acroTotal.toFixed(2)}. Total: ${totalScore.toFixed(2)}`);
-                if (age === '12U' && acroTotal > 2.8) sugg.push(`⚠️ Age 12U acro limit 2.8.`);
-            }
-            if (totalScore > 35) sugg.push(`⚠️ High difficulty (>35), reduce.`);
-            if (highRisk.size) sugg.push(`⚠️ High-risk moves: ${[...highRisk].join(', ')}.`);
-            let families = new Set();
-            for (let seq of currentSequences) {
-                let codes = seq.trim().split(/[\s,]+/);
-                codes.forEach(c => families.add(getFamily(c)));
-            }
-            let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`❌ Missing families: ${missing.join(', ')}.`);
-            sugg.push(`💡 Tip: Place hardest hybrid first/last.`);
-        }
-        return sugg;
-    }
-    function getDisciplineTextZh(v) { const m={soloWomen:'女子单人',soloMen:'男子单人',duetWomen:'女子双人',mixedDuet:'混合双人',teamTech:'集体技术',teamFree:'集体自由',acro:'技巧',combo:'自由组合'}; return m[v]||v; }
-    function getDisciplineTextEn(v) { const m={soloWomen:'Women Solo',soloMen:'Men Solo',duetWomen:'Women Duet',mixedDuet:'Mixed Duet',teamTech:'Team Tech',teamFree:'Team Free',acro:'Acrobatic',combo:'Free Combo'}; return m[v]||v; }
-    function getAgeTextZh(v) { const m={'12U':'12岁及以下',youth:'青年组',junior:'少年组',senior:'成年组'}; return m[v]||v; }
-    function getAgeTextEn(v) { const m={'12U':'12 & Under',youth:'Youth',junior:'Junior',senior:'Senior'}; return m[v]||v; }
-
-    // ---------- 历史记录 ----------
-    const STORAGE_KEY = "HybridPWA";
-    function loadHistory() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-    function saveHistory(hist) { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist)); }
-    function addRecord(name, seqs, hyTotal, acroData, total, pass, info, riskHtml) {
-        let hist = loadHistory();
-        hist.unshift({ id: Date.now(), name, sequences: [...seqs], totalScore: hyTotal, globalPass: pass, info: {...info, acrobatics: acroData}, riskHTML: riskHtml });
-        if (hist.length>50) hist.pop();
-        saveHistory(hist);
-        renderHistory();
-    }
-    function deleteRecord(id) {
-        let hist = loadHistory().filter(r => r.id != id);
-        saveHistory(hist);
-        renderHistory();
-    }
-    function loadRecordToEditor(rec) {
-        const required = rec.sequences.length;
-        if (required !== currentRequiredCount) rebuildHybridInputs(required);
-        for (let i=0;i<required;i++) if (document.getElementById(`seq-${i}`)) document.getElementById(`seq-${i}`).value = rec.sequences[i] || '';
-        if (rec.info) {
-            document.getElementById('athleteName').value = rec.info.athleteName || '';
-            document.getElementById('eventName').value = rec.info.eventName || '';
-            document.getElementById('ageGroup').value = rec.info.ageGroup || '';
-            document.getElementById('theme').value = rec.info.theme || '';
-            document.getElementById('musicTitle').value = rec.info.musicTitle || '';
-            document.getElementById('notes').value = rec.info.notes || '';
-            if (rec.info.acrobatics) {
-                const requiredAcro = getRequiredAcroCount(document.getElementById('disciplineSelect')?.value || '', document.getElementById('ageCategorySelect')?.value || 'senior');
-                rebuildAcroInputs(requiredAcro);
-                for (let i=0; i<rec.info.acrobatics.length && i<requiredAcro; i++) {
-                    if (rec.info.acrobatics[i].code) {
-                        const inputs = document.querySelectorAll('.acro-row');
-                        if (inputs[i]) {
-                            const codeInput = inputs[i].querySelector('.acro-code');
-                            const valInput = inputs[i].querySelector('.acro-val');
-                            if (codeInput) codeInput.value = rec.info.acrobatics[i].code;
-                            if (valInput) valInput.value = rec.info.acrobatics[i].value;
-                            acroList[i].code = rec.info.acrobatics[i].code;
-                            acroList[i].value = rec.info.acrobatics[i].value;
-                            if (codeInput && !acroMap[rec.info.acrobatics[i].code]) codeInput.classList.add('error');
-                        }
-                    }
-                }
-            }
-        }
-        performCalculation();
-    }
-    function renderHistory() {
-        let hist = loadHistory();
-        let tbody = document.getElementById('historyBody');
-        if (!hist.length) { tbody.innerHTML = `<tr><td colspan="4">${t('noRecord')}<\/td><\/tr>`; return; }
-        let html = '';
-        hist.forEach(rec => {
-            let status = rec.globalPass ? '✅' : '❌';
-            html += `<tr><td style="max-width:140px;">${rec.name}<\/td><td>${rec.totalScore.toFixed(2)}<\/td><td>${status}<\/td><td><button class="load-btn" data-id="${rec.id}">${t('load')}<\/button> <button class="delete-btn" data-id="${rec.id}">${t('delete')}<\/button><\/td><\/tr>`;
-        });
-        tbody.innerHTML = html;
-        document.querySelectorAll('.load-btn').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.getAttribute('data-id')); let rec = loadHistory().find(r => r.id === id); if (rec) loadRecordToEditor(rec); }));
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.getAttribute('data-id')); deleteRecord(id); }));
-    }
-    function saveCurrentRecord() {
-        let name = prompt(t('savePrompt'), new Date().toLocaleString());
-        if (!name) return;
-        let info = {
-            athleteName: document.getElementById('athleteName').value,
-            eventName: document.getElementById('eventName').value,
-            ageGroup: document.getElementById('ageGroup').value,
-            theme: document.getElementById('theme').value,
-            musicTitle: document.getElementById('musicTitle').value,
-            notes: document.getElementById('notes').value,
-            acrobatics: acroList.map(a => ({ code: a.code, value: a.value }))
-        };
-        let riskHtml = generateRiskHTML(currentSequences);
-        let acroTotal = getAcroTotal();
-        let total = currentHybridTotal + acroTotal;
-        addRecord(name, currentSequences, currentHybridTotal, acroList, total, currentGlobalPass, info, riskHtml);
-        alert(t('savePrompt') + " " + name);
-    }
-    function clearHistory() {
-        if (confirm(t('clearConfirm'))) { localStorage.removeItem(STORAGE_KEY); renderHistory(); }
-    }
-
-    // ---------- 语言切换 ----------
+    
     function switchLang() {
         currentLang = currentLang === 'en' ? 'zh' : 'en';
-        const btn = document.getElementById('langBtn');
-        btn.innerHTML = currentLang === 'en' ? '🇬🇧 EN' : '🇨🇳 中文';
+        document.getElementById('langBtn').innerHTML = currentLang === 'en' ? '🇬🇧 EN' : '🇨🇳 中文';
         document.getElementById('titleText').innerText = t('title');
         document.getElementById('subText').innerText = t('sub');
         document.getElementById('calcBtn').innerText = t('calc');
         document.getElementById('saveBtn').innerText = t('save');
         document.getElementById('exportBtn').innerText = t('export');
+        document.getElementById('exportAllBtn').innerText = t('exportSubmit');
         document.getElementById('riskBtn').innerText = t('risk');
         document.getElementById('suggestionsBtn').innerText = t('suggestions');
         document.getElementById('clearHistoryBtn').innerText = t('clearAll');
+        document.getElementById('syncToCloudBtn').innerText = t('syncToCloud');
+        document.getElementById('loadFromCloudBtn').innerText = t('syncFromCloud');
         document.getElementById('riskCardTitle').innerText = t('riskCardTitle');
         document.getElementById('historyCardTitle').innerText = t('historyTitle');
         document.getElementById('privacyLinkText').innerText = t('privacyLink');
@@ -1054,17 +1088,15 @@
             let titleSpan = document.querySelector(`#seqContainer .seq-card:nth-child(${i+1}) .seq-title`);
             if (titleSpan) titleSpan.innerText = `${t('hybrid')} ${i+1}`;
         }
-        if (hasConsented && currentHybridTotal !== undefined) performCalculation();
+        if (hasConsented) performCalculation();
         renderHistory();
-        if (document.getElementById('riskReportContainer').style.display === 'block') showRisk();
     }
-
-    // ---------- UI 构建 ----------
-    function buildUI() {
+ 
+    function buildApp() {
         const container = document.getElementById('app');
         container.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <h1><span id="titleText">${t('title')}</span> <button id="langBtn" class="lang-switch">🇬🇧 EN</button></h1>
+                <h1><span id="titleText">${t('title')}</span> <button id="langBtn" class="lang-switch">🇨🇳 中文</button></h1>
             </div>
             <div class="sub" id="subText">${t('sub')}</div>
             <div class="help-text">
@@ -1105,6 +1137,7 @@
                 <div class="action-right">
                     <button id="saveBtn">${t('save')}</button>
                     <button id="exportBtn">${t('export')}</button>
+                    <button id="exportAllBtn">📎 ${t('exportSubmit')}</button>
                     <button id="suggestionsBtn">${t('suggestions')}</button>
                 </div>
             </div>
@@ -1112,87 +1145,106 @@
                 <div class="left-panel">
                     <div id="seqContainer"></div>
                     <div class="acro-panel">
-                        <div class="acro-header">
-                            <strong id="acroTitle">🏅 ${t('acroTitle')}</strong>
-                        </div>
+                        <div class="acro-header"><strong id="acroTitle">🏅 ${t('acroTitle')}</strong></div>
                         <div id="acroList" class="acro-list"></div>
                     </div>
                 </div>
                 <div class="right-panel">
                     <div class="risk-card">
                         <h3 id="riskCardTitle">⚠️ ${t('riskCardTitle')}</h3>
-                        <div id="riskReportContainer" class="risk-report">
+                        <div id="riskReportContainer" class="risk-report" style="display:none;">
                             <div id="riskContent">${t('riskEmpty')}</div>
                         </div>
                         <button id="riskBtn" style="margin-top: 10px;">${t('risk')}</button>
                     </div>
                     <div class="history-card">
                         <h3 id="historyCardTitle">📋 ${t('historyTitle')}</h3>
-                        <div style="max-height: 400px; overflow-y: auto;">
+                        <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <button id="syncToCloudBtn" class="success" style="font-size:0.7rem;">☁️ ${t('syncToCloud')}</button>
+                            <button id="loadFromCloudBtn" style="font-size:0.7rem;">📥 ${t('syncFromCloud')}</button>
+                            <span id="syncStatus" class="sync-status"></span>
+                        </div>
+                        <div style="max-height: 350px; overflow-y: auto;">
                             <table class="history-table"><thead><tr><th>${t('nameCol')}</th><th>${t('totalCol')}</th><th>${t('status')}</th><th>${t('action')}</th></tr></thead><tbody id="historyBody"></tbody></table>
                         </div>
-                        <button id="clearHistoryBtn" style="margin-top: 10px;">${t('clearAll')}</button>
+                        <button id="clearHistoryBtn" style="margin-top: 10px;" class="danger">${t('clearAll')}</button>
                     </div>
                 </div>
             </div>
-            <div class="privacy-link">
-                <a href="#" id="privacyLinkText">${t('privacyLink')}</a>
-            </div>
-            <div class="version">${APP_VERSION}</div>
+            <div class="privacy-link"><a href="#" id="privacyLinkText">${t('privacyLink')}</a></div>
+            <div class="version">${APP_VERSION} ${supabaseEnabled ? '☁️ 云端已连接' : '📁 本地模式'}</div>
             <div class="rules-ref" id="rulesRefText">${t('rulesRef')} <a href="${RULES_REF.link}" target="_blank">${t('rulesLink')}</a></div>
         `;
-        // 初始化Hybrid数量
+        
+        // 初始化
+        const savedConsent = localStorage.getItem('hybridCalculatorConsent');
+        hasConsented = savedConsent === 'true';
+        
         const ageSelect = document.getElementById('ageCategorySelect');
-        const initialAge = ageSelect.value;
-        const requiredHy = getRequiredHybridCount(initialAge);
-        rebuildHybridInputs(requiredHy);
-        // 初始化Acro数量
         const discSelect = document.getElementById('disciplineSelect');
-        const requiredAcro = getRequiredAcroCount(discSelect.value, initialAge);
+        const requiredHy = getRequiredHybridCount(ageSelect.value);
+        rebuildHybridInputs(requiredHy);
+        const requiredAcro = getRequiredAcroCount(discSelect.value, ageSelect.value);
         rebuildAcroInputs(requiredAcro);
-        // 监听变化
+        
         ageSelect.addEventListener('change', () => {
-            const newAge = ageSelect.value;
-            const newRequiredHy = getRequiredHybridCount(newAge);
-            if (newRequiredHy !== currentRequiredCount) rebuildHybridInputs(newRequiredHy);
-            const newRequiredAcro = getRequiredAcroCount(discSelect.value, newAge);
-            if (newRequiredAcro !== currentRequiredAcro) rebuildAcroInputs(newRequiredAcro);
+            const newRequired = getRequiredHybridCount(ageSelect.value);
+            if (newRequired !== currentRequiredCount) rebuildHybridInputs(newRequired);
+            const newAcro = getRequiredAcroCount(discSelect.value, ageSelect.value);
+            if (newAcro !== currentRequiredAcro) rebuildAcroInputs(newAcro);
             if (hasConsented) performCalculation();
         });
         discSelect.addEventListener('change', () => {
-            const newDisc = discSelect.value;
-            const newRequiredAcro = getRequiredAcroCount(newDisc, ageSelect.value);
-            if (newRequiredAcro !== currentRequiredAcro) rebuildAcroInputs(newRequiredAcro);
+            const newAcro = getRequiredAcroCount(discSelect.value, ageSelect.value);
+            if (newAcro !== currentRequiredAcro) rebuildAcroInputs(newAcro);
             if (hasConsented) performCalculation();
         });
-        // 事件绑定
+        
         document.getElementById('calcBtn').addEventListener('click', checkConsentAndCalculate);
         document.getElementById('saveBtn').addEventListener('click', saveCurrentRecord);
         document.getElementById('exportBtn').addEventListener('click', exportExcel);
+        document.getElementById('exportAllBtn').addEventListener('click', exportAllRecords);
         document.getElementById('riskBtn').addEventListener('click', showRisk);
         document.getElementById('suggestionsBtn').addEventListener('click', showSuggestions);
         document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
         document.getElementById('langBtn').addEventListener('click', switchLang);
         document.getElementById('privacyLinkText').addEventListener('click', (e) => { e.preventDefault(); showFullPolicyModal(); });
-        // 初始计算
-        performCalculation();
+        
+        if (supabaseEnabled) {
+            document.getElementById('syncToCloudBtn').addEventListener('click', syncToCloud);
+            document.getElementById('loadFromCloudBtn').addEventListener('click', loadFromCloud);
+        } else {
+            document.getElementById('syncToCloudBtn').style.opacity = '0.5';
+            document.getElementById('syncToCloudBtn').disabled = true;
+            document.getElementById('loadFromCloudBtn').style.opacity = '0.5';
+            document.getElementById('loadFromCloudBtn').disabled = true;
+        }
+        
+        if (hasConsented) performCalculation();
         renderHistory();
     }
-    buildUI();
+    
+    buildApp();
 </script>
-<!-- 隐私/免责同意模态框 -->
-<div id="privacyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px; max-height:80%; overflow-y:auto;">
+ 
+<!-- 模态框 -->
+<div id="privacyModal" class="modal">
+    <div class="modal-content">
         <div id="privacyContent"></div>
-        <button onclick="closePrivacyModal()" style="margin-top:15px;">Close / 关闭</button>
+        <button onclick="closePrivacyModal()" style="margin-top:15px;">${t('close')}</button>
     </div>
 </div>
-<!-- 完整政策模态框 -->
-<div id="fullPolicyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:28px; max-width:600px; width:90%; padding:20px; max-height:80%; overflow-y:auto;">
+<div id="fullPolicyModal" class="modal">
+    <div class="modal-content">
         <div id="fullPolicyContent"></div>
-        <button onclick="closeFullPolicyModal()" style="margin-top:15px;">Close / 关闭</button>
+        <button onclick="closeFullModal()" style="margin-top:15px;">${t('close')}</button>
     </div>
 </div>
+ 
+<script>
+    // 挂载全局模态框关闭函数
+    window.closePrivacyModal = function() { document.getElementById('privacyModal').style.display = 'none'; };
+    window.closeFullModal = function() { document.getElementById('fullPolicyModal').style.display = 'none'; };
+</script>
 </body>
 </html>
