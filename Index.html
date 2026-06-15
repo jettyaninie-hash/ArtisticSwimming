@@ -30,28 +30,51 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
         }
-        h1 {
-            font-size: 1.3rem;
-            color: #1e3c72;
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        h1 {
+            font-size: 1.3rem;
+            color: #1e3c72;
             border-left: 5px solid #1e88e5;
             padding-left: 12px;
-            margin-top: 0;
-            margin-bottom: 8px;
+            margin: 0;
+        }
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
         .lang-switch {
             background: #eef2fa;
             border: none;
             padding: 4px 12px;
             border-radius: 30px;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        /* 白色小圆点按钮 - 数据面板（隐藏） */
+        .admin-dot {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            font-size: 0;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            opacity: 0.25;
+            transition: opacity 0.2s;
+        }
+        .admin-dot:hover {
+            opacity: 0.6;
         }
         .info-panel {
             background: #eef2fa;
@@ -150,8 +173,10 @@
         button:hover { background: #0b5e9e; }
         button.danger { background: #dc3545; }
         button.danger:hover { background: #b02a37; }
-        button.success { background: #28a745; }
-        button.success:hover { background: #1e7e34; }
+        button.export-btn {
+            background: #6c757d;
+        }
+        button.export-btn:hover { background: #5a6268; }
         .two-columns {
             display: flex;
             gap: 20px;
@@ -230,15 +255,6 @@
             font-family: monospace;
             word-break: break-all;
         }
-        .live-errors {
-            margin-top: 6px;
-            background: #fee2e2;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            color: #b91c1c;
-            font-family: monospace;
-        }
         .risk-report {
             max-height: 400px;
             overflow-y: auto;
@@ -293,7 +309,7 @@
             font-size: 0.75rem;
             border-left: 4px solid #f0ad4e;
         }
-        .modal {
+        .modal, .language-modal, .admin-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -308,24 +324,59 @@
         .modal-content {
             background: white;
             border-radius: 28px;
-            max-width: 500px;
-            width: 90%;
-            padding: 20px;
+            max-width: 90%;
+            width: 900px;
             max-height: 80%;
+            padding: 20px;
             overflow-y: auto;
         }
-        .sync-status {
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 20px;
-            background: #e8f0fe;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .lang-option {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
         }
-        .sync-status.synced { background: #d4edda; color: #155724; }
-        .sync-status.error { background: #f8d7da; color: #721c24; }
-        .sync-status.syncing { background: #fff3cd; color: #856404; }
+        .lang-option button {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            min-width: 120px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8f9fc;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e88e5;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .admin-table {
+            width: 100%;
+            font-size: 0.7rem;
+            border-collapse: collapse;
+        }
+        .admin-table th, .admin-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+        }
+        .admin-table th {
+            background: #f0f4f8;
+        }
         @media (max-width: 700px) {
             .container { padding: 12px 16px; }
             .action-bar { flex-direction: column; align-items: stretch; }
@@ -333,117 +384,133 @@
             button { padding: 6px 12px; font-size: 0.75rem; }
             .seq-input { font-size: 16px; }
             .acro-row { flex-wrap: wrap; }
+            .modal-content { width: 95%; }
         }
     </style>
 </head>
 <body>
 <div class="container" id="app"></div>
- 
+
+<!-- 语言选择模态框 -->
+<div id="languageModal" class="language-modal">
+    <div class="modal-content">
+        <h2>🌊 Artistic Swimming Calculator</h2>
+        <p style="margin: 15px 0; color: #666;">Select your language / 选择语言</p>
+        <div class="lang-option">
+            <button id="selectEnglish" style="background: #1e88e5;">English</button>
+            <button id="selectChinese" style="background: #1e88e5;">中文</button>
+        </div>
+    </div>
+</div>
+
+<!-- 管理员数据面板模态框 -->
+<div id="adminModal" class="admin-modal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>📊 云端用户数据统计面板</h2>
+            <button onclick="closeAdminModal()" style="background: #dc3545;">关闭</button>
+        </div>
+        <div id="adminStatsContent">
+            <p>加载中...</p>
+        </div>
+    </div>
+</div>
+
 <script>
     // ==================== Supabase 配置 ====================
-    // 请在这里填入您的 Supabase 项目信息
-    const SUPABASE_URL = "https://wjbcswalngxcjwcsbhlm.supabase.co/rest/v1/";
+    const SUPABASE_URL = "https://wjbcswalngxcjwcsbhlm.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_VUxDOkSHiHie0brbdZ04fw_q1EF3QdB";
     
     let supabaseClient = null;
     let supabaseEnabled = false;
     
-    // 尝试初始化 Supabase
-    if (SUPABASE_URL && SUPABASE_URL !== "https://你的项目.supabase.co" && 
-        SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("示例密钥")) {
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            supabaseEnabled = true;
-            console.log("✅ Supabase 客户端已初始化");
-        } catch(e) {
-            console.warn("Supabase 初始化失败:", e);
-            supabaseEnabled = false;
-        }
-    } else {
-        console.log("⚠️ 请配置正确的 Supabase URL 和 anon key");
-        console.log("获取方式: Supabase 项目设置 -> API -> URL 和 anon/public key");
+    try {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseEnabled = true;
+        console.log("✅ Supabase 已连接");
+    } catch(e) {
+        console.warn("Supabase 连接失败:", e);
+        supabaseEnabled = false;
     }
- 
+
     // ==================== 版本信息 ====================
-    const APP_VERSION = "v3.7.0 (Supabase云端版)";
+    const APP_VERSION = "v4.0.0";
     const RULES_REF = {
         fileName: "Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf",
         version: "V5.2, October 2025",
         effective: "October 2025",
         link: "https://resources.fina.org/fina/document/2025/10/24/cbafa24c-437a-4242-87e7-0384651e3564/Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf"
     };
- 
+
     // ---------- 语言资源 ----------
     const langResources = {
         en: {
-            title: "🏊‍♀️ Artistic Swimming Hybrid Calculator",
-            sub: "Difficulty Mapping + Rules Check + Base Mark Risk",
-            name: "👤 Athlete", event: "🏆 Competition", age: "📅 Age Group", theme: "🎭 Theme", music: "🎵 Music Title", notes: "📋 Notes",
+            title: "Artistic Swimming Hybrid Calculator",
+            sub: "Difficulty Mapping + Rules Check + Risk Analysis",
+            name: "Athlete", event: "Competition", age: "Age Group", theme: "Theme", music: "Music Title", notes: "Notes",
             discipline: "Discipline", ageCategory: "Age Category", soloWomen: "Women Solo", soloMen: "Men Solo", duetWomen: "Women Duet", mixedDuet: "Mixed Duet", teamTech: "Team Technical", teamFree: "Team Free", acro: "Acrobatic", combo: "Free Combination",
             age12U: "12 & Under", ageYouth: "Youth", ageJunior: "Junior", ageSenior: "Senior",
-            hybrid: "Hybrid", calc: "Calculate", save: "Save", export: "Export Excel", risk: "Show Risks", suggestions: "Suggestions",
-            total: "Total Score", globalPass: "✅ All 5 families covered", globalFail: "❌ Missing: ",
-            hybridPass: "Click Calculate", unknownCode: "⚠️ Unknown",
+            hybrid: "Hybrid", calc: "Calculate", save: "Save to Local", export: "Export Local", risk: "Show Risks", suggestions: "Suggestions",
+            total: "Total Score", globalPass: "All 5 families covered", globalFail: "Missing: ",
+            hybridPass: "Click Calculate", unknownCode: "Unknown",
             noRecord: "No records", load: "Load", delete: "Delete", clearAll: "Clear All",
-            riskTitle: "⚠️ Risk Analysis", riskEmpty: "Click 'Show Risks' first",
+            riskTitle: "Risk Analysis", riskEmpty: "Click 'Show Risks' first",
             savePrompt: "Enter record name", clearConfirm: "Clear all records?",
             action: "Actions", status: "Status", nameCol: "Name", totalCol: "Score",
-            historyTitle: "📋 Saved Records", riskCardTitle: "⚠️ Risk Analysis",
+            historyTitle: "Saved Records", riskCardTitle: "Risk Analysis",
             codeValues: "Values: ", close: "Close",
             rulesRef: `Rules: ${RULES_REF.fileName} (${RULES_REF.version}) `,
             rulesLink: "Download PDF",
             privacyLink: "Privacy & Disclaimer",
-            acroTitle: "🤸 Acrobatics",
+            acroTitle: "Acrobatics",
             totalWithAcro: "Total (Hybrid + Acro)",
-            helpTitle: "📖 How to use",
-            helpText: "Enter Hybrid codes (space separated). Acro codes auto-map to values.",
+            helpTitle: "How to use",
+            helpText: "Enter Hybrid codes (space separated). Acro codes auto-map to values. Click Calculate to get score.",
             helpText2: "Mixed Duet: refer to official rules.",
             warningCount: "Warning: Wrong hybrid count!",
-            countOk: "✓ Hybrid count OK.",
-            exportSubmit: "Export All Records",
-            syncToCloud: "☁️ Sync to Cloud",
-            syncFromCloud: "📥 Load from Cloud",
-            cloudSynced: "Cloud Synced",
-            syncError: "Sync Failed",
-            cloudRecords: "Cloud Records"
+            countOk: "Hybrid count OK",
+            exportSubmit: "Export All Local Records",
+            noDataExport: "No records to export. Please save some records first.",
+            adminPanel: "",
+            autoSaved: "",
+            saveToLocal: "Saved to local"
         },
         zh: {
-            title: "🏊‍♀️ 花样游泳 Hybrid 难度计算器",
-            sub: "难度映射 + 规则检查 + 风险提示 + 云端存储",
-            name: "👤 姓名", event: "🏆 比赛名称", age: "📅 年龄组", theme: "🎭 主题", music: "🎵 音乐名称", notes: "📋 备注",
+            title: "花样游泳 Hybrid 难度计算器",
+            sub: "难度映射 + 规则检查 + 风险提示",
+            name: "姓名", event: "比赛名称", age: "年龄组", theme: "主题", music: "音乐名称", notes: "备注",
             discipline: "项目", ageCategory: "年龄组别", soloWomen: "女子单人", soloMen: "男子单人", duetWomen: "女子双人", mixedDuet: "混合双人", teamTech: "集体技术", teamFree: "集体自由", acro: "技巧自选", combo: "自由组合",
             age12U: "12岁及以下", ageYouth: "青年组", ageJunior: "少年组", ageSenior: "成年组",
-            hybrid: "组合", calc: "计算", save: "保存", export: "导出 Excel", risk: "显示风险", suggestions: "设计建议",
-            total: "总难度分", globalPass: "✅ 覆盖全部5个家族", globalFail: "❌ 缺少: ",
-            hybridPass: "点击计算", unknownCode: "⚠️ 未知",
+            hybrid: "组合", calc: "计算", save: "保存到本地", export: "导出本地", risk: "显示风险", suggestions: "设计建议",
+            total: "总难度分", globalPass: "覆盖全部5个家族", globalFail: "缺少: ",
+            hybridPass: "点击计算", unknownCode: "未知",
             noRecord: "暂无记录", load: "加载", delete: "删除", clearAll: "清空所有",
-            riskTitle: "⚠️ 风险分析", riskEmpty: "请先点击显示风险",
-            savePrompt: "请输入记录名称", clearConfirm: "确定清空？",
+            riskTitle: "风险分析", riskEmpty: "请先点击显示风险",
+            savePrompt: "请输入记录名称", clearConfirm: "确定清空所有记录？",
             action: "操作", status: "状态", nameCol: "名称", totalCol: "总分",
-            historyTitle: "📋 保存记录", riskCardTitle: "⚠️ 风险分析",
+            historyTitle: "保存记录", riskCardTitle: "风险分析",
             codeValues: "分值：", close: "关闭",
             rulesRef: `规则：${RULES_REF.fileName} (${RULES_REF.version}) `,
             rulesLink: "下载 PDF",
             privacyLink: "隐私与免责",
-            acroTitle: "🤸 托举动作",
+            acroTitle: "托举动作",
             totalWithAcro: "总分（Hybrid + 托举）",
-            helpTitle: "📖 使用说明",
-            helpText: "输入Hybrid代码（空格分隔）。托举代码自动映射分值。",
+            helpTitle: "使用说明",
+            helpText: "输入Hybrid代码（空格分隔）。托举代码自动映射分值。点击「计算」获得难度分。",
             helpText2: "混合双人请参考官方规则。",
             warningCount: "警告：Hybrid数量不正确！",
-            countOk: "✓ Hybrid数量正确。",
-            exportSubmit: "导出所有记录",
-            syncToCloud: "☁️ 同步到云端",
-            syncFromCloud: "📥 从云端加载",
-            cloudSynced: "已同步",
-            syncError: "同步失败",
-            cloudRecords: "云端记录"
+            countOk: "Hybrid数量正确",
+            exportSubmit: "导出本地记录",
+            noDataExport: "暂无记录可导出，请先保存一些记录。",
+            adminPanel: "",
+            autoSaved: "",
+            saveToLocal: "已保存到本地"
         }
     };
     
     let currentLang = 'zh';
     function t(key) { return langResources[currentLang][key] || key; }
- 
+
     // ---------- 难度映射表 ----------
     const difficultyMap = {
         "TB":0.30,"T1":0.45,"T2a":0.50,"T2b":0.50,"T3a":0.65,"T3b":0.65,"T3c":0.65,"T3d":0.65,
@@ -470,14 +537,14 @@
         "L»":0.20,"L!»":0.30,"L":0.50,"Lf»":0.50,"L!f»":0.50,"L!":0.70,"Lf":0.70,"Lr0,5":0.90,"W":0.90,
         "W»":0.90,"L!r1":1.10,"J":0.90,"Wd":1.10,"Js1F":2.10
     };
- 
+
     function getRiskMsg(code) {
-        if (code.startsWith("T")) return currentLang==='zh' ? "⚠️ Thrust: 高度需达3.5，旋转须逐渐下降" : "⚠️ Thrust: height ≥3.5, spin must descend";
-        if (code.startsWith("S")) return currentLang==='zh' ? "⚠️ Spin: 必须逐渐下降，起始高度≥3.5" : "⚠️ Spin: must descend, start height ≥3.5";
-        if (code.match(/^[12]?R/)) return currentLang==='zh' ? "⚠️ Twist: 高度保持不变，旋转完整" : "⚠️ Twist: constant height, full rotation";
-        return currentLang==='zh' ? "⚠️ 请查阅官方规则" : "⚠️ Check official rules";
+        if (code.startsWith("T")) return currentLang==='zh' ? "Thrust: 高度需达3.5，旋转须逐渐下降" : "Thrust: height >=3.5, spin must descend";
+        if (code.startsWith("S")) return currentLang==='zh' ? "Spin: 必须逐渐下降，起始高度>=3.5" : "Spin: must descend, start height >=3.5";
+        if (code.match(/^[12]?R/)) return currentLang==='zh' ? "Twist: 高度保持不变，旋转完整" : "Twist: constant height, full rotation";
+        return currentLang==='zh' ? "请查阅官方规则" : "Check official rules";
     }
- 
+
     function parseSequence(codesStr) {
         let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
         let total = 0, unknown = [], details = [];
@@ -501,7 +568,7 @@
     function checkHybrid(codesStr) {
         let tokens = codesStr.trim().split(/[\s,]+/).filter(t => t);
         let errors = [];
-        if (tokens.length < 5) errors.push(currentLang==='zh' ? `❌ 不足5个 (${tokens.length})` : `❌ Less than 5 (${tokens.length})`);
+        if (tokens.length < 5) errors.push(currentLang==='zh' ? `不足5个 (${tokens.length})` : `Less than 5 (${tokens.length})`);
         let famCount = {T:0,S:0,R:0,A:0,F:0};
         let codeCnt = new Map();
         tokens.forEach(code => {
@@ -510,7 +577,7 @@
             codeCnt.set(code, (codeCnt.get(code)||0)+1);
         });
         for (let [c,n] of codeCnt) if (n>3) errors.push(`${c} x${n} >3`);
-        return { errors, warnings: errors.length ? [] : ["✅ OK"], families: Object.keys(famCount).filter(f=>famCount[f]>0) };
+        return { errors, warnings: errors.length ? [] : ["OK"], families: Object.keys(famCount).filter(f=>famCount[f]>0) };
     }
     
     function checkGlobalFamilies(allFamilies) {
@@ -548,7 +615,7 @@
         }
         return html || `<div>${t('riskEmpty')}</div>`;
     }
- 
+
     function getRequiredHybridCount(ageGroup) {
         if (ageGroup === 'senior' || ageGroup === 'junior') return 6;
         if (ageGroup === 'youth') return 5;
@@ -561,7 +628,7 @@
         if (discipline === 'mixedDuet') return 3;
         return 3;
     }
- 
+
     // 全局变量
     let currentRequiredCount = 6;
     let sequences = [];
@@ -572,7 +639,8 @@
     let acroList = [];
     let currentRequiredAcro = 0;
     let historyRecords = [];
- 
+    let lastSavedData = "";
+
     // 存储函数
     const STORAGE_KEY = "HybridPWA";
     function loadHistory() { 
@@ -580,152 +648,65 @@
         historyRecords = data ? JSON.parse(data) : [];
         return historyRecords;
     }
-    function saveHistory(hist) { localStorage.setItem(STORAGE_KEY, JSON.stringify(hist)); historyRecords = hist; }
-    
-    // Supabase 云端同步函数
-    async function syncToCloud() {
-        if (!supabaseEnabled) {
-            alert(currentLang === 'zh' ? "Supabase 未配置，请在代码中设置正确的 URL 和 anon key" : "Supabase not configured");
-            return;
-        }
-        
-        const syncBtn = document.getElementById('syncToCloudBtn');
-        const originalText = syncBtn.innerText;
-        syncBtn.innerText = currentLang === 'zh' ? "⏳ 同步中..." : "⏳ Syncing...";
-        syncBtn.disabled = true;
-        
-        try {
-            // 获取当前所有本地记录
-            const records = loadHistory();
-            
-            for (const record of records) {
-                // 检查是否已存在
-                const { data: existing } = await supabaseClient
-                    .from('difficulty_records')
-                    .select('id')
-                    .eq('local_id', record.id)
-                    .maybeSingle();
-                
-                if (!existing) {
-                    // 插入新记录
-                    const { error } = await supabaseClient
-                        .from('difficulty_records')
-                        .insert([{
-                            local_id: record.id,
-                            name: record.name,
-                            sequences: record.sequences,
-                            total_score: record.totalScore,
-                            global_pass: record.globalPass,
-                            athlete_name: record.info?.athleteName || '',
-                            event_name: record.info?.eventName || '',
-                            age_group: record.info?.ageGroup || '',
-                            theme: record.info?.theme || '',
-                            music_title: record.info?.musicTitle || '',
-                            notes: record.info?.notes || '',
-                            acrobatics: record.info?.acrobatics || [],
-                            risk_html: record.riskHTML || '',
-                            created_at: new Date(record.timestamp || Date.now()).toISOString()
-                        }]);
-                    
-                    if (error) console.error("Insert error:", error);
-                }
-            }
-            
-            alert(currentLang === 'zh' ? "✅ 已同步到云端！" : "✅ Synced to cloud!");
-            updateSyncStatus(true);
-        } catch (err) {
-            console.error("Sync error:", err);
-            alert(currentLang === 'zh' ? "❌ 同步失败: " + err.message : "❌ Sync failed: " + err.message);
-            updateSyncStatus(false);
-        } finally {
-            syncBtn.innerText = originalText;
-            syncBtn.disabled = false;
-        }
+    function saveHistory(hist) { 
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(hist)); 
+        historyRecords = hist;
     }
     
-    async function loadFromCloud() {
-        if (!supabaseEnabled) {
-            alert(currentLang === 'zh' ? "Supabase 未配置" : "Supabase not configured");
-            return;
-        }
-        
-        const loadBtn = document.getElementById('loadFromCloudBtn');
-        const originalText = loadBtn.innerText;
-        loadBtn.innerText = currentLang === 'zh' ? "⏳ 加载中..." : "⏳ Loading...";
-        loadBtn.disabled = true;
-        
+    // 云端保存记录（静默保存，无提示）
+    async function saveToCloud(record) {
+        if (!supabaseEnabled) return false;
         try {
-            const { data, error } = await supabaseClient
-                .from('difficulty_records')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const disciplineSelect = document.getElementById('disciplineSelect');
+            const ageCategorySelect = document.getElementById('ageCategorySelect');
+            const discipline = disciplineSelect?.options[disciplineSelect.selectedIndex]?.text || '';
+            const ageGroup = ageCategorySelect?.options[ageCategorySelect.selectedIndex]?.text || '';
             
+            const dataFingerprint = JSON.stringify({
+                sequences: record.sequences,
+                totalScore: record.totalScore,
+                athleteName: record.info?.athleteName,
+                discipline: discipline
+            });
+            
+            if (lastSavedData === dataFingerprint) {
+                console.log("数据未变化，跳过自动保存");
+                return true;
+            }
+            lastSavedData = dataFingerprint;
+            
+            const { error } = await supabaseClient
+                .from('user_records')
+                .insert([{
+                    local_id: record.id,
+                    name: record.name,
+                    sequences: record.sequences,
+                    total_score: record.totalScore,
+                    global_pass: record.globalPass,
+                    athlete_name: record.info?.athleteName || '',
+                    event_name: record.info?.eventName || '',
+                    age_group: ageGroup,
+                    theme: record.info?.theme || '',
+                    music_title: record.info?.musicTitle || '',
+                    notes: record.info?.notes || '',
+                    acrobatics: record.info?.acrobatics || [],
+                    risk_html: record.riskHTML || '',
+                    created_at: new Date(record.timestamp).toISOString(),
+                    user_agent: navigator.userAgent,
+                    screen_size: `${window.screen.width}x${window.screen.height}`,
+                    discipline: discipline
+                }]);
             if (error) throw error;
-            
-            if (data && data.length > 0) {
-                // 合并云端记录到本地
-                const localRecords = loadHistory();
-                const existingIds = new Set(localRecords.map(r => r.id));
-                
-                for (const cloudRecord of data) {
-                    if (!existingIds.has(cloudRecord.local_id)) {
-                        localRecords.push({
-                            id: cloudRecord.local_id,
-                            name: cloudRecord.name,
-                            sequences: cloudRecord.sequences,
-                            totalScore: cloudRecord.total_score,
-                            globalPass: cloudRecord.global_pass,
-                            info: {
-                                athleteName: cloudRecord.athlete_name,
-                                eventName: cloudRecord.event_name,
-                                ageGroup: cloudRecord.age_group,
-                                theme: cloudRecord.theme,
-                                musicTitle: cloudRecord.music_title,
-                                notes: cloudRecord.notes,
-                                acrobatics: cloudRecord.acrobatics
-                            },
-                            riskHTML: cloudRecord.risk_html,
-                            timestamp: new Date(cloudRecord.created_at).getTime()
-                        });
-                    }
-                }
-                
-                // 按时间排序
-                localRecords.sort((a, b) => b.timestamp - a.timestamp);
-                saveHistory(localRecords);
-                renderHistory();
-                alert(currentLang === 'zh' ? `✅ 从云端加载了 ${data.length} 条记录` : `✅ Loaded ${data.length} records from cloud`);
-            } else {
-                alert(currentLang === 'zh' ? "云端暂无记录" : "No records in cloud");
-            }
-            updateSyncStatus(true);
+            console.log("已静默保存到云端:", record.name);
+            return true;
         } catch (err) {
-            console.error("Load error:", err);
-            alert(currentLang === 'zh' ? "❌ 加载失败: " + err.message : "❌ Load failed: " + err.message);
-            updateSyncStatus(false);
-        } finally {
-            loadBtn.innerText = originalText;
-            loadBtn.disabled = false;
+            console.error("云端保存失败:", err);
         }
+        return false;
     }
     
-    function updateSyncStatus(success) {
-        const statusSpan = document.getElementById('syncStatus');
-        if (statusSpan) {
-            if (success) {
-                statusSpan.innerHTML = '☁️ ' + t('cloudSynced');
-                statusSpan.className = 'sync-status synced';
-            } else {
-                statusSpan.innerHTML = '⚠️ ' + t('syncError');
-                statusSpan.className = 'sync-status error';
-            }
-            setTimeout(() => {
-                if (statusSpan) statusSpan.style.opacity = '0.5';
-            }, 3000);
-        }
-    }
-    
-    function addRecord(name, seqs, hyTotal, acroData, total, pass, info, riskHtml) {
+    // 添加记录到本地
+    function addRecordToLocal(name, seqs, hyTotal, acroData, total, pass, info, riskHtml) {
         let hist = loadHistory();
         const newRecord = { 
             id: Date.now(), 
@@ -741,11 +722,38 @@
         if (hist.length>50) hist.pop();
         saveHistory(hist);
         renderHistory();
+        alert("✓ " + t('saveToLocal'));
+        return newRecord;
+    }
+    
+    // 自动保存（计算时调用，静默）
+    async function autoSaveOnCalculate() {
+        if (!hasConsented) return;
         
-        // 如果 Supabase 可用，自动同步
-        if (supabaseEnabled) {
-            setTimeout(() => syncToCloud(), 500);
-        }
+        const now = Date.now();
+        const info = {
+            athleteName: document.getElementById('athleteName')?.value || '',
+            eventName: document.getElementById('eventName')?.value || '',
+            ageGroup: document.getElementById('ageGroup')?.value || '',
+            theme: document.getElementById('theme')?.value || '',
+            musicTitle: document.getElementById('musicTitle')?.value || '',
+            notes: document.getElementById('notes')?.value || '',
+            acrobatics: acroList.map(a => ({ code: a.code, value: a.value }))
+        };
+        const riskHtml = generateRiskHTML(currentSequences, acroList);
+        
+        const autoRecord = {
+            id: now,
+            name: `Auto-${new Date().toLocaleString()}`,
+            sequences: [...currentSequences],
+            totalScore: currentHybridTotal,
+            globalPass: currentGlobalPass,
+            info: info,
+            riskHTML: riskHtml,
+            timestamp: now
+        };
+        
+        await saveToCloud(autoRecord);
     }
     
     function deleteRecord(id) {
@@ -758,11 +766,11 @@
         let tbody = document.getElementById('historyBody');
         if (!tbody) return;
         let hist = loadHistory();
-        if (!hist.length) { tbody.innerHTML = `<tr><td colspan="4">${t('noRecord')}</td></tr>`; return; }
+        if (!hist.length) { tbody.innerHTML = `<tr><td colspan="4">${t('noRecord')}<\/td><\/tr>`; return; }
         let html = '';
         hist.forEach(rec => {
-            let status = rec.globalPass ? '✅' : '❌';
-            html += `<tr><td style="max-width:140px;">${rec.name}</td><td>${rec.totalScore.toFixed(2)}</td><td>${status}</td><td><button class="load-btn" data-id="${rec.id}">${t('load')}</button> <button class="delete-btn" data-id="${rec.id}">${t('delete')}</button></td></tr>`;
+            let status = rec.globalPass ? '✓' : '✗';
+            html += `<tr><td style="max-width:140px;">${rec.name}<\/td><td>${rec.totalScore.toFixed(2)}<\/td><td>${status}<\/td><td><button class="load-btn" data-id="${rec.id}">${t('load')}</button> <button class="delete-btn" data-id="${rec.id}">${t('delete')}</button><\/td><\/tr>`;
         });
         tbody.innerHTML = html;
         document.querySelectorAll('.load-btn').forEach(btn => btn.addEventListener('click', () => { 
@@ -775,6 +783,118 @@
             deleteRecord(id); 
         }));
     }
+    
+    // 管理员面板 - 查看云端所有用户数据
+    async function showAdminPanel() {
+        if (!supabaseEnabled) {
+            alert("Supabase 未连接，无法查看云端数据。请确保已在 Supabase 中创建 user_records 表。");
+            return;
+        }
+        
+        const modal = document.getElementById('adminModal');
+        const content = document.getElementById('adminStatsContent');
+        content.innerHTML = '<p>加载中...</p>';
+        modal.style.display = 'flex';
+        
+        try {
+            const { data: records, error } = await supabaseClient
+                .from('user_records')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            if (!records || records.length === 0) {
+                content.innerHTML = '<p>暂无云端数据，等待用户点击"计算"按钮...</p><p style="font-size:0.7rem; color:#666;">💡 提示：用户每次点击"计算"都会自动保存到云端</p>';
+                return;
+            }
+            
+            const totalRecords = records.length;
+            const uniqueUsers = new Set(records.map(r => r.user_agent?.substring(0, 50))).size;
+            const avgScore = records.reduce((sum, r) => sum + (r.total_score || 0), 0) / totalRecords;
+            const passRate = records.filter(r => r.global_pass).length / totalRecords * 100;
+            
+            const disciplineCount = {};
+            records.forEach(r => {
+                const disc = r.discipline || '未知';
+                disciplineCount[disc] = (disciplineCount[disc] || 0) + 1;
+            });
+            
+            const ageGroupCount = {};
+            records.forEach(r => {
+                const age = r.age_group || '未知';
+                ageGroupCount[age] = (ageGroupCount[age] || 0) + 1;
+            });
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number">${totalRecords}</div><div class="stat-label">总计算次数</div></div>
+                    <div class="stat-card"><div class="stat-number">${uniqueUsers}</div><div class="stat-label">独立用户</div></div>
+                    <div class="stat-card"><div class="stat-number">${avgScore.toFixed(1)}</div><div class="stat-label">平均难度分</div></div>
+                    <div class="stat-card"><div class="stat-number">${passRate.toFixed(0)}%</div><div class="stat-label">规则通过率</div></div>
+                </div>
+                <h3>📊 按项目分布</h3>
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                    ${Object.entries(disciplineCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}
+                </div>
+                <h3>👥 按年龄组分布</h3>
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                    ${Object.entries(ageGroupCount).map(([k,v]) => `<div class="stat-card"><div class="stat-number">${v}</div><div class="stat-label">${k}</div></div>`).join('')}
+                </div>
+                <h3>📋 最近100条记录</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table"><thead><tr><th>时间</th><th>名称</th><th>总分</th><th>通过</th><th>项目</th><th>年龄组</th><th>设备</th></tr></thead>
+                    <tbody>
+                        ${records.slice(0, 100).map(r => `
+                            <tr>
+                                <td>${new Date(r.created_at).toLocaleString()}</td>
+                                <td>${r.name || '-'}</td>
+                                <td>${(r.total_score || 0).toFixed(2)}</td>
+                                <td>${r.global_pass ? '✓' : '✗'}</td>
+                                <td>${r.discipline || '-'}</td>
+                                <td>${r.age_group || '-'}</td>
+                                <td style="max-width:200px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" title="${r.user_agent || ''}">${(r.user_agent || '-').substring(0, 40)}...</td>
+                            比
+                        `).join('')}
+                    </tbody>
+                </div>
+                <p style="margin-top:15px; font-size:0.7rem; color:#666;">💡 点击下方按钮可导出所有云端数据到 Excel</p>
+                <button onclick="exportCloudData()" style="margin-top:10px;">📊 导出云端数据 (${totalRecords}条)</button>
+            `;
+            content.innerHTML = html;
+        } catch (err) {
+            content.innerHTML = `<p style="color:red;">加载失败: ${err.message}</p><p>请确保已在 Supabase 中创建 user_records 表。</p>`;
+        }
+    }
+    
+    // 导出云端数据
+    async function exportCloudData() {
+        if (!supabaseEnabled) return;
+        try {
+            const { data: records, error } = await supabaseClient
+                .from('user_records')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            const wb = XLSX.utils.book_new();
+            const rows = [["ID", "时间", "名称", "总分", "规则通过", "姓名", "比赛", "年龄组", "主题", "音乐", "备注", "Hybrids", "托举数据", "设备信息", "屏幕尺寸", "项目"]];
+            records.forEach(r => {
+                rows.push([
+                    r.local_id, new Date(r.created_at).toLocaleString(), r.name, r.total_score, r.global_pass ? "是" : "否",
+                    r.athlete_name, r.event_name, r.age_group, r.theme, r.music_title, r.notes,
+                    JSON.stringify(r.sequences), JSON.stringify(r.acrobatics), r.user_agent, r.screen_size, r.discipline
+                ]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, "云端数据");
+            XLSX.writeFile(wb, `cloud_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+            alert(`导出成功！共 ${records.length} 条记录`);
+        } catch (err) {
+            alert("导出失败: " + err.message);
+        }
+    }
+    
+    function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
     
     function loadRecordToEditor(rec) {
         if (rec.sequences.length !== currentRequiredCount) {
@@ -804,9 +924,9 @@
         }
         performCalculation();
     }
- 
+
     function getAcroTotal() { return acroList.reduce((sum, a) => sum + (a.value || 0), 0); }
- 
+
     function performCalculation() {
         let hyTotal = 0, allFamilies = [], seqData = [];
         let actualCount = 0;
@@ -820,12 +940,12 @@
             let { finalScore, unknown, details } = parseSequence(sequences[i]);
             hyTotal += finalScore;
             let scoreSpan = document.getElementById(`score-${i}`);
-            if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ⚠️ ${unknown.join(',')}` : '');
+            if (scoreSpan) scoreSpan.innerText = `DD: ${finalScore.toFixed(2)}` + (unknown.length ? ` ? ${unknown.join(',')}` : '');
             let { errors, warnings, families } = checkHybrid(sequences[i]);
             let div = document.getElementById(`check-${i}`);
             if (div) {
-                let html = errors.length ? `<div style="color:red;">${errors.join('<br>')}</div>` : `<div style="color:green;">✅ ${t('hybridPass')}</div>`;
-                if (unknown.length) html += `<div style="color:red;">⚠️ ${t('unknownCode')}: ${unknown.join(',')}</div>`;
+                let html = errors.length ? `<div style="color:red;">${errors.join('<br>')}</div>` : `<div style="color:green;">✓ ${t('hybridPass')}</div>`;
+                if (unknown.length) html += `<div style="color:red;">? ${t('unknownCode')}: ${unknown.join(',')}</div>`;
                 html += `<div class="code-values">${t('codeValues')} ${details.map(d => `${d.code}:${d.value === '?' ? '?' : d.value.toFixed(2)}`).join(', ')}</div>`;
                 div.innerHTML = html;
             }
@@ -849,8 +969,11 @@
         if (riskContainer && riskContainer.style.display !== 'none') {
             document.getElementById('riskContent').innerHTML = generateRiskHTML(currentSequences, acroList);
         }
+        
+        // 静默自动保存到云端（无提示）
+        autoSaveOnCalculate();
     }
- 
+
     function showRisk() {
         let html = generateRiskHTML(currentSequences, acroList);
         document.getElementById('riskContent').innerHTML = html;
@@ -861,32 +984,32 @@
         let totalScore = currentHybridTotal + getAcroTotal();
         let sugg = [];
         if (currentLang === 'zh') {
-            sugg.push(`📊 总难度：${totalScore.toFixed(2)}`);
-            if (totalScore > 35) sugg.push(`⚠️ 难度偏高(>35)，建议降低`);
-            else if (totalScore < 20) sugg.push(`✅ 难度偏低，可增加高难度动作`);
+            sugg.push(`总难度：${totalScore.toFixed(2)}`);
+            if (totalScore > 35) sugg.push(`难度偏高(>35)，建议降低`);
+            else if (totalScore < 20) sugg.push(`难度偏低，可增加高难度动作`);
             let families = new Set();
             for (let seq of currentSequences) {
                 let codes = seq.trim().split(/[\s,]+/);
                 codes.forEach(c => families.add(getFamily(c)));
             }
             let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`❌ 缺少家族：${missing.join(', ')}`);
-            sugg.push(`💡 建议：高难度动作放在开头或结尾`);
+            if (missing.length) sugg.push(`缺少家族：${missing.join(', ')}`);
+            sugg.push(`建议：高难度动作放在开头或结尾`);
         } else {
-            sugg.push(`📊 Total: ${totalScore.toFixed(2)}`);
-            if (totalScore > 35) sugg.push(`⚠️ High difficulty (>35), reduce`);
+            sugg.push(`Total: ${totalScore.toFixed(2)}`);
+            if (totalScore > 35) sugg.push(`High difficulty (>35), reduce`);
             let families = new Set();
             for (let seq of currentSequences) {
                 let codes = seq.trim().split(/[\s,]+/);
                 codes.forEach(c => families.add(getFamily(c)));
             }
             let missing = ["T","S","R","A","F"].filter(f => !families.has(f));
-            if (missing.length) sugg.push(`❌ Missing families: ${missing.join(', ')}`);
+            if (missing.length) sugg.push(`Missing families: ${missing.join(', ')}`);
         }
-        let modalHtml = `<div id="suggestionsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px;"><h3>${currentLang === 'zh' ? '💡 设计建议' : '💡 Suggestions'}</h3><ul>${sugg.map(s => `<li>${s}</li>`).join('')}</ul><button onclick="this.closest('#suggestionsModal').remove()">${t('close')}</button></div></div>`;
+        let modalHtml = `<div id="suggestionsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"><div style="background:white; border-radius:28px; max-width:500px; width:90%; padding:20px;"><h3>${currentLang === 'zh' ? '设计建议' : 'Suggestions'}</h3><ul>${sugg.map(s => `<li>${s}</li>`).join('')}</ul><button onclick="this.closest('#suggestionsModal').remove()">${t('close')}</button></div></div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
- 
+
     function rebuildHybridInputs(requiredCount) {
         const container = document.getElementById('seqContainer');
         if (!container) return;
@@ -914,7 +1037,7 @@
         currentRequiredCount = requiredCount;
         if (hasConsented) performCalculation();
     }
- 
+
     function rebuildAcroInputs(requiredCount) {
         const container = document.getElementById('acroList');
         if (!container) return;
@@ -954,8 +1077,8 @@
         currentRequiredAcro = requiredCount;
         if (hasConsented) performCalculation();
     }
- 
-    function saveCurrentRecord() {
+
+    function saveCurrentRecordToLocal() {
         let name = prompt(t('savePrompt'), new Date().toLocaleString());
         if (!name) return;
         let info = {
@@ -969,68 +1092,53 @@
         };
         let riskHtml = generateRiskHTML(currentSequences, acroList);
         let total = currentHybridTotal + getAcroTotal();
-        addRecord(name, currentSequences, currentHybridTotal, acroList, total, currentGlobalPass, info, riskHtml);
-        alert(t('savePrompt') + " " + name);
+        addRecordToLocal(name, currentSequences, currentHybridTotal, acroList, total, currentGlobalPass, info, riskHtml);
     }
     
     function clearHistory() {
         if (confirm(t('clearConfirm'))) { localStorage.removeItem(STORAGE_KEY); renderHistory(); }
     }
     
-    function exportExcel() {
-        if (!currentSequences.length && !loadHistory().length) {
+    // 导出本地记录（用户主动保存的记录）
+    function exportLocalRecords() {
+        let hist = loadHistory();
+        if (hist.length === 0) {
             alert(t('noDataExport'));
             return;
         }
         const wb = XLSX.utils.book_new();
-        const currentRows = [];
-        const headers = ["项目","年龄组","姓名","比赛","总分", ...currentSequences.map((_,idx)=>`Hybrid${idx+1}`)];
-        const row = [
-            document.getElementById('disciplineSelect')?.options[document.getElementById('disciplineSelect').selectedIndex]?.text || '',
-            document.getElementById('ageCategorySelect')?.options[document.getElementById('ageCategorySelect').selectedIndex]?.text || '',
-            document.getElementById('athleteName')?.value || '',
-            document.getElementById('eventName')?.value || '',
-            (currentHybridTotal + getAcroTotal()).toFixed(2),
-            ...currentSequences
-        ];
-        currentRows.push(headers, row);
-        const wsCurrent = XLSX.utils.aoa_to_sheet(currentRows);
-        XLSX.utils.book_append_sheet(wb, wsCurrent, "当前编排");
-        
-        let hist = loadHistory();
-        if (hist.length > 0) {
-            const histRows = [["名称","总分","状态","姓名","比赛","年龄组","主题","音乐","备注", ...currentSequences.map((_,idx)=>`Hybrid${idx+1}`), "时间"]];
-            hist.forEach(rec => {
-                let info = rec.info || {};
-                histRows.push([rec.name, rec.totalScore.toFixed(2), rec.globalPass ? "通过" : "不通过", info.athleteName || "", info.eventName || "", info.ageGroup || "", info.theme || "", info.musicTitle || "", info.notes || "", ...rec.sequences, new Date(rec.timestamp).toLocaleString()]);
-            });
-            const wsHist = XLSX.utils.aoa_to_sheet(histRows);
-            XLSX.utils.book_append_sheet(wb, wsHist, "历史记录");
-        }
-        XLSX.writeFile(wb, `hybrid_export_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-    }
-    
-    function exportAllRecords() {
-        let hist = loadHistory();
-        if (hist.length === 0) { alert(t('noDataExport')); return; }
-        const wb = XLSX.utils.book_new();
-        const rows = [["名称","总分","状态","姓名","比赛","年龄组","Hybrid1","Hybrid2","Hybrid3","Hybrid4","Hybrid5","Hybrid6","时间"]];
+        const rows = [["名称","总分","状态","姓名","比赛","年龄组","主题","音乐","备注", ...Array(Math.max(...hist.map(r=>r.sequences.length), currentRequiredCount)).fill(0).map((_,i)=>`Hybrid${i+1}`), "创建时间"]];
         hist.forEach(rec => {
             let info = rec.info || {};
-            rows.push([rec.name, rec.totalScore.toFixed(2), rec.globalPass ? "通过" : "不通过", info.athleteName || "", info.eventName || "", info.ageGroup || "", ...rec.sequences, new Date(rec.timestamp).toLocaleString()]);
+            let seqs = [...rec.sequences];
+            while(seqs.length < currentRequiredCount) seqs.push("");
+            rows.push([
+                rec.name, 
+                (rec.totalScore + (info.acrobatics?.reduce((s,a)=>s+(a.value||0),0) || 0)).toFixed(2), 
+                rec.globalPass ? "通过" : "不通过", 
+                info.athleteName || "", 
+                info.eventName || "", 
+                info.ageGroup || "",
+                info.theme || "",
+                info.musicTitle || "",
+                info.notes || "",
+                ...seqs,
+                new Date(rec.timestamp).toLocaleString()
+            ]);
         });
         const ws = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(wb, ws, "保存记录");
-        XLSX.writeFile(wb, `hybrid_saved_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "本地记录");
+        XLSX.writeFile(wb, `local_records_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        alert(`导出成功！共 ${hist.length} 条本地记录`);
     }
- 
+
     function showPrivacyModal() {
         const modal = document.getElementById('privacyModal');
         const content = document.getElementById('privacyContent');
         if (currentLang === 'zh') {
-            content.innerHTML = `<h2>隐私政策与免责声明</h2><p><strong>隐私政策：</strong>您的编排数据会保存在本地浏览器中。如果启用云端同步，数据将加密传输到 Supabase 云端，仅用于跨设备访问和数据备份。</p><p><strong>免责声明：</strong>本工具仅供参考，不保证准确性，使用风险自负。</p><p><strong>使用计算器前您必须同意以上条款。</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
+            content.innerHTML = `<h2>隐私政策与免责声明</h2><p><strong>隐私政策：</strong>每次点击「计算」按钮，您的编排数据会自动保存到云端，用于改进计算器服务。</p><p><strong>免责声明：</strong>本工具仅供参考，不保证准确性，使用风险自负。</p><p><strong>使用计算器前您必须同意以上条款。</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
         } else {
-            content.innerHTML = `<h2>Privacy & Disclaimer</h2><p><strong>Privacy:</strong> Your data is stored locally. Cloud sync uses encrypted transmission.</p><p><strong>Disclaimer:</strong> For reference only. Use at your own risk.</p><p><strong>You must agree to continue.</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
+            content.innerHTML = `<h2>Privacy & Disclaimer</h2><p><strong>Privacy:</strong> Each time you click Calculate, your data is auto-saved to cloud.</p><p><strong>Disclaimer:</strong> For reference only. Use at your own risk.</p><p><strong>You must agree to continue.</strong></p><button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button><button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
         }
         modal.style.display = 'flex';
         document.getElementById('consentAgreeBtn').onclick = () => {
@@ -1046,17 +1154,16 @@
         const modal = document.getElementById('fullPolicyModal');
         const content = document.getElementById('fullPolicyContent');
         if (currentLang === 'zh') {
-            content.innerHTML = `<h3>完整隐私政策</h3><p>我们收集编排数据以改进计算器。数据存储在您的本地浏览器中。云端同步功能需要您手动触发，数据会加密传输到 Supabase。</p><h3>免责声明</h3><p>本工具非官方评判设备，使用风险自负。</p><p>如需删除数据，请联系: privacy@swimcalc.com</p>`;
+            content.innerHTML = `<h3>完整隐私政策</h3><p>您的编排数据保存在云端，用于统计分析和改进服务。每次计算都会自动保存。</p><h3>免责声明</h3><p>本工具非官方评判设备，使用风险自负。</p>`;
         } else {
-            content.innerHTML = `<h3>Full Privacy Policy</h3><p>We collect routine data to improve the calculator. Data is stored locally. Cloud sync is manual and encrypted.</p><h3>Disclaimer</h3><p>This is not an official judging tool. Use at your own risk.</p>`;
+            content.innerHTML = `<h3>Full Privacy Policy</h3><p>Your data is stored in cloud. Auto-saved on each calculation.</p><h3>Disclaimer</h3><p>This is not an official judging tool. Use at your own risk.</p>`;
         }
         modal.style.display = 'flex';
     }
     
-    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
     function closeFullModal() { document.getElementById('fullPolicyModal').style.display = 'none'; }
     function closePrivacyModal() { document.getElementById('privacyModal').style.display = 'none'; }
- 
+
     function checkConsentAndCalculate() {
         if (hasConsented) performCalculation();
         else showPrivacyModal();
@@ -1064,18 +1171,15 @@
     
     function switchLang() {
         currentLang = currentLang === 'en' ? 'zh' : 'en';
-        document.getElementById('langBtn').innerHTML = currentLang === 'en' ? '🇬🇧 EN' : '🇨🇳 中文';
+        document.getElementById('langBtn').innerHTML = currentLang === 'en' ? 'EN' : '中文';
         document.getElementById('titleText').innerText = t('title');
         document.getElementById('subText').innerText = t('sub');
         document.getElementById('calcBtn').innerText = t('calc');
         document.getElementById('saveBtn').innerText = t('save');
         document.getElementById('exportBtn').innerText = t('export');
-        document.getElementById('exportAllBtn').innerText = t('exportSubmit');
         document.getElementById('riskBtn').innerText = t('risk');
         document.getElementById('suggestionsBtn').innerText = t('suggestions');
         document.getElementById('clearHistoryBtn').innerText = t('clearAll');
-        document.getElementById('syncToCloudBtn').innerText = t('syncToCloud');
-        document.getElementById('loadFromCloudBtn').innerText = t('syncFromCloud');
         document.getElementById('riskCardTitle').innerText = t('riskCardTitle');
         document.getElementById('historyCardTitle').innerText = t('historyTitle');
         document.getElementById('privacyLinkText').innerText = t('privacyLink');
@@ -1084,19 +1188,44 @@
         document.getElementById('helpText').innerHTML = t('helpText');
         document.getElementById('helpText2').innerHTML = t('helpText2');
         document.getElementById('rulesRefText').innerHTML = `${t('rulesRef')} <a href="${RULES_REF.link}" target="_blank">${t('rulesLink')}</a>`;
-        for (let i=0;i<currentRequiredCount;i++) {
-            let titleSpan = document.querySelector(`#seqContainer .seq-card:nth-child(${i+1}) .seq-title`);
-            if (titleSpan) titleSpan.innerText = `${t('hybrid')} ${i+1}`;
-        }
         if (hasConsented) performCalculation();
         renderHistory();
     }
- 
+
+    // 语言选择初始化
+    function initLanguageSelection() {
+        const savedLang = localStorage.getItem('appLanguage');
+        if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
+            currentLang = savedLang;
+            document.getElementById('languageModal').style.display = 'none';
+            buildApp();
+        } else {
+            document.getElementById('languageModal').style.display = 'flex';
+            document.getElementById('selectEnglish').onclick = () => {
+                currentLang = 'en';
+                localStorage.setItem('appLanguage', 'en');
+                document.getElementById('languageModal').style.display = 'none';
+                buildApp();
+            };
+            document.getElementById('selectChinese').onclick = () => {
+                currentLang = 'zh';
+                localStorage.setItem('appLanguage', 'zh');
+                document.getElementById('languageModal').style.display = 'none';
+                buildApp();
+            };
+        }
+    }
+
     function buildApp() {
         const container = document.getElementById('app');
         container.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <h1><span id="titleText">${t('title')}</span> <button id="langBtn" class="lang-switch">🇨🇳 中文</button></h1>
+            <div class="header-top">
+                <h1><span id="titleText">${t('title')}</span></h1>
+                <div class="top-buttons">
+                    <button id="langBtn" class="lang-switch">${currentLang === 'en' ? 'EN' : '中文'}</button>
+                    <button id="exportLocalBtn" class="export-btn" style="background:#6c757d;">📎 ${t('exportSubmit')}</button>
+                    <button id="adminBtn" class="admin-dot" title="数据面板"></button>
+                </div>
             </div>
             <div class="sub" id="subText">${t('sub')}</div>
             <div class="help-text">
@@ -1135,10 +1264,9 @@
                 <button id="calcBtn">${t('calc')}</button>
                 <div id="totalScore" class="total-score">🏆 ${t('totalWithAcro')}: --</div>
                 <div class="action-right">
-                    <button id="saveBtn">${t('save')}</button>
-                    <button id="exportBtn">${t('export')}</button>
-                    <button id="exportAllBtn">📎 ${t('exportSubmit')}</button>
-                    <button id="suggestionsBtn">${t('suggestions')}</button>
+                    <button id="saveBtn">💾 ${t('save')}</button>
+                    <button id="exportBtn">📎 ${t('export')}</button>
+                    <button id="suggestionsBtn">💡 ${t('suggestions')}</button>
                 </div>
             </div>
             <div class="two-columns">
@@ -1155,28 +1283,22 @@
                         <div id="riskReportContainer" class="risk-report" style="display:none;">
                             <div id="riskContent">${t('riskEmpty')}</div>
                         </div>
-                        <button id="riskBtn" style="margin-top: 10px;">${t('risk')}</button>
+                        <button id="riskBtn" style="margin-top: 10px;">🔍 ${t('risk')}</button>
                     </div>
                     <div class="history-card">
                         <h3 id="historyCardTitle">📋 ${t('historyTitle')}</h3>
-                        <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-                            <button id="syncToCloudBtn" class="success" style="font-size:0.7rem;">☁️ ${t('syncToCloud')}</button>
-                            <button id="loadFromCloudBtn" style="font-size:0.7rem;">📥 ${t('syncFromCloud')}</button>
-                            <span id="syncStatus" class="sync-status"></span>
-                        </div>
                         <div style="max-height: 350px; overflow-y: auto;">
                             <table class="history-table"><thead><tr><th>${t('nameCol')}</th><th>${t('totalCol')}</th><th>${t('status')}</th><th>${t('action')}</th></tr></thead><tbody id="historyBody"></tbody></table>
                         </div>
-                        <button id="clearHistoryBtn" style="margin-top: 10px;" class="danger">${t('clearAll')}</button>
+                        <button id="clearHistoryBtn" style="margin-top: 10px;" class="danger">🗑️ ${t('clearAll')}</button>
                     </div>
                 </div>
             </div>
             <div class="privacy-link"><a href="#" id="privacyLinkText">${t('privacyLink')}</a></div>
-            <div class="version">${APP_VERSION} ${supabaseEnabled ? '☁️ 云端已连接' : '📁 本地模式'}</div>
+            <div class="version">${APP_VERSION}</div>
             <div class="rules-ref" id="rulesRefText">${t('rulesRef')} <a href="${RULES_REF.link}" target="_blank">${t('rulesLink')}</a></div>
         `;
         
-        // 初始化
         const savedConsent = localStorage.getItem('hybridCalculatorConsent');
         hasConsented = savedConsent === 'true';
         
@@ -1201,33 +1323,29 @@
         });
         
         document.getElementById('calcBtn').addEventListener('click', checkConsentAndCalculate);
-        document.getElementById('saveBtn').addEventListener('click', saveCurrentRecord);
-        document.getElementById('exportBtn').addEventListener('click', exportExcel);
-        document.getElementById('exportAllBtn').addEventListener('click', exportAllRecords);
+        document.getElementById('saveBtn').addEventListener('click', saveCurrentRecordToLocal);
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (currentSequences.length && currentSequences.some(s => s.trim())) {
+                exportLocalRecords();
+            } else {
+                alert(t('noDataExport'));
+            }
+        });
+        document.getElementById('exportLocalBtn').addEventListener('click', exportLocalRecords);
         document.getElementById('riskBtn').addEventListener('click', showRisk);
         document.getElementById('suggestionsBtn').addEventListener('click', showSuggestions);
         document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
         document.getElementById('langBtn').addEventListener('click', switchLang);
+        document.getElementById('adminBtn').addEventListener('click', showAdminPanel);
         document.getElementById('privacyLinkText').addEventListener('click', (e) => { e.preventDefault(); showFullPolicyModal(); });
-        
-        if (supabaseEnabled) {
-            document.getElementById('syncToCloudBtn').addEventListener('click', syncToCloud);
-            document.getElementById('loadFromCloudBtn').addEventListener('click', loadFromCloud);
-        } else {
-            document.getElementById('syncToCloudBtn').style.opacity = '0.5';
-            document.getElementById('syncToCloudBtn').disabled = true;
-            document.getElementById('loadFromCloudBtn').style.opacity = '0.5';
-            document.getElementById('loadFromCloudBtn').disabled = true;
-        }
         
         if (hasConsented) performCalculation();
         renderHistory();
     }
     
-    buildApp();
+    initLanguageSelection();
 </script>
- 
-<!-- 模态框 -->
+
 <div id="privacyModal" class="modal">
     <div class="modal-content">
         <div id="privacyContent"></div>
@@ -1240,11 +1358,14 @@
         <button onclick="closeFullModal()" style="margin-top:15px;">${t('close')}</button>
     </div>
 </div>
- 
+
 <script>
-    // 挂载全局模态框关闭函数
     window.closePrivacyModal = function() { document.getElementById('privacyModal').style.display = 'none'; };
     window.closeFullModal = function() { document.getElementById('fullPolicyModal').style.display = 'none'; };
+    window.closeAdminModal = function() { document.getElementById('adminModal').style.display = 'none'; };
+    window.exportCloudData = function() { 
+        if (typeof exportCloudData === 'function') exportCloudData();
+    };
 </script>
 </body>
 </html>
