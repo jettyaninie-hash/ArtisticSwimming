@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>花样游泳难度计算器 | 专业版</title>
+    <title id="pageTitle">花样游泳难度计算器 | 专业版</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -49,7 +49,11 @@
         }
         .info-group { flex: 1 1 140px; display: flex; flex-direction: column; gap: 4px; }
         .info-group label { font-size: 0.7rem; font-weight: bold; color: #1e3c72; }
+        .info-group label .required { color: #dc3545; margin-left: 2px; }
         .info-group input, .info-group select, .info-group textarea { padding: 6px 8px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: white; }
+        .info-group input.required-field { border-color: #dc3545; background-color: #fff9f9; }
+        .info-group input.required-field:focus { border-color: #dc3545; box-shadow: 0 0 0 2px rgba(220,53,69,0.2); }
+        .info-group .field-hint { font-size: 0.6rem; color: #999; margin-top: 2px; }
         .acro-panel { background: #e8f0fe; border-radius: 20px; padding: 12px 16px; margin-top: 20px; border: 1px solid #b8e1fc; }
         .acro-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
         .acro-list { margin-bottom: 12px; }
@@ -152,7 +156,7 @@
         supabaseEnabled = false;
     }
 
-    const APP_VERSION = "v5.3.0 (International Privacy)";
+    const APP_VERSION = "v5.4.0 (Required Fields + Bilingual Title)";
     const RULES_REF = {
         fileName: "Appendix-6-Hybrid-Catalogue-Difficulty-Table-UPDATED-24.10-.pdf",
         version: "V5.2, October 2025",
@@ -203,11 +207,13 @@
             airborneRisk: "【Airborne Weight】Min height 3.5, sustained ≥3 seconds, ascent/descent min 2 height levels",
             flexibilityRisk: "【Flexibility】Knight min height 5.5 (kneecap visible), Split ≥90°, rotation gradual",
             connectionRisk: "【Connection】Constant height, full rotation, same connections back-to-back must disconnect",
-            defaultRisk: "Please consult World Aquatics rules Appendix 6 V5.2"
+            defaultRisk: "Please consult World Aquatics rules Appendix 6 V5.2",
+            requiredFields: "Please fill in: Athlete Name, Event Name, and Music Title",
+            pageTitle: "Artistic Swimming Difficulty Calculator"
         },
         zh: {
             title: "花样游泳 Hybrid 难度计算器",
-            sub: "难度映射 | 规则检查 | 风险分析 | v5.3",
+            sub: "难度映射 | 规则检查 | 风险分析 | v5.4",
             athlete: "运动员姓名", event: "比赛名称", category: "年龄组别", theme: "主题", music: "音乐名称", notes: "备注",
             preparedBy: "编排人", coachName: "教练姓名",
             discipline: "项目类型", ageCategory: "年龄组", soloWomen: "女子单人", soloMen: "男子单人",
@@ -247,12 +253,47 @@
             airborneRisk: "【Airborne Weight 执行要点】最低高度必须达到3.5；「持续高度」动作必须稳定保持≥3秒；上升/下降必须改变至少两个高度级别；A8 Rocking：经过平衡「V」型位置 = Base Mark",
             flexibilityRisk: "【Flexibility 执行要点】Knight位置：最低高度5.5（膝盖必须可见）；Knight垂直方向：最多偏离30°；Split位置：必须至少90°；F6c/F8a：旋转必须渐进",
             connectionRisk: "【Connection 执行要点】连接旋转必须在恒定高度完成；旋转不能在上/下降过程中开始或结束；高度下降两个级别 = Base Mark；相同连接背靠背：必须有断开",
-            defaultRisk: "请对照《世界泳联艺术游泳规则手册》Appendix 6 V5.2确认该动作的完整执行标准"
+            defaultRisk: "请对照《世界泳联艺术游泳规则手册》Appendix 6 V5.2确认该动作的完整执行标准",
+            requiredFields: "请填写：运动员姓名、比赛名称和音乐名称（必填）",
+            pageTitle: "花样游泳难度计算器"
         }
     };
     
     let currentLang = 'zh';
     function t(key) { return langResources[currentLang][key] || key; }
+
+    // 更新页面标题
+    function updatePageTitle() {
+        document.title = t('pageTitle') + ' | ' + APP_VERSION;
+    }
+
+    // 检查必填字段
+    function checkRequiredFields() {
+        const athleteName = document.getElementById('athleteName')?.value?.trim() || '';
+        const eventName = document.getElementById('eventName')?.value?.trim() || '';
+        const musicTitle = document.getElementById('musicTitle')?.value?.trim() || '';
+        
+        // 添加视觉提示 - 红色边框
+        const fields = ['athleteName', 'eventName', 'musicTitle'];
+        let allFilled = true;
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.value.trim() === '') {
+                    el.classList.add('required-field');
+                    allFilled = false;
+                } else {
+                    el.classList.remove('required-field');
+                }
+            }
+        });
+        
+        if (!allFilled) {
+            showToast(t('requiredFields'), true);
+            return false;
+        }
+        return true;
+    }
 
     // 难度映射表（大写）
     const difficultyMap = {
@@ -670,6 +711,9 @@
 
     let isCalculating = false;
     function performCalculation() {
+        // 检查必填字段
+        if (!checkRequiredFields()) return;
+        
         if (isCalculating) return;
         isCalculating = true;
         const calcBtn = document.getElementById('calcBtn');
@@ -827,6 +871,9 @@
     }
 
     function saveCurrentRecordToLocal() {
+        // 检查必填字段
+        if (!checkRequiredFields()) return;
+        
         let name = prompt(t('savePrompt'), new Date().toLocaleString());
         if (!name) return;
         let info = {
@@ -994,7 +1041,7 @@
         alert(`Exported ${hist.length} record(s) in Coach Card format`);
     }
 
-    // 隐私政策模态框（完整版含国际法律条款）
+    // 隐私政策模态框（完整版含国际法律条款 + 数据不对外公开承诺）
     function showPrivacyModal() {
         const modal = document.getElementById('privacyModal');
         const content = document.getElementById('privacyContent');
@@ -1002,55 +1049,80 @@
             content.innerHTML = `
             <h2>隐私政策与免责声明</h2>
             <p><strong>最后更新日期：</strong>2026年6月16日</p>
+            
             <h3>一、隐私政策</h3>
+            
             <p><strong>1. 我们收集的信息</strong><br>
             当您使用本计算器时，我们可能收集编排数据（Hybrid代码、托举代码、运动员姓名、比赛名称、年龄组别、主题、音乐名称、备注、编排人、教练姓名）、计算记录（难度分值、规则检查结果）、设备信息（浏览器类型、操作系统、IP地址）及使用数据（访问时间、使用时长）。</p>
+            
             <p><strong>2. 信息的使用目的</strong><br>
-            仅用于服务改进、产品研发、安全保障及履行法律义务。我们不会将您的个人信息用于其他用途。</p>
-            <p><strong>3. 信息的存储与保护</strong><br>
-            您的数据保存于Supabase云端（位于海外），传输采用TLS/SSL加密，我们实施访问控制、定期安全审计等措施保障安全。您有权通过管理员面板查看和导出数据。</p>
-            <p><strong>4. 信息的保留期限</strong><br>
-            云端数据在您持续使用服务期间保留；您可随时请求删除。</p>
+            我们收集上述信息<strong>仅用于以下目的</strong>：</p>
+            <ul>
+                <li>改进计算器的功能与用户体验；</li>
+                <li>分析用户使用习惯，优化产品设计；</li>
+                <li>保障服务安全和稳定运行；</li>
+                <li>履行法律法规规定的义务。</li>
+            </ul>
+            <p style="color:#28a745; font-weight:bold;">✅ 您的数据仅用于内部数据分析和产品改进，不会对外公开、出售或向任何第三方披露。</p>
+            
+            <p><strong>3. 数据的存储与保护</strong><br>
+            您的数据保存于Supabase云端（位于海外），传输采用TLS/SSL加密。我们实施严格的访问控制和定期安全审计。您可以通过管理员面板查看和导出您的数据。</p>
+            
+            <p><strong>4. 信息的保留期限与删除权利</strong><br>
+            云端数据在您持续使用服务期间保留。您有权随时通过 privacy@swimcalc.com 联系我们，要求删除您的个人数据。我们将在30天内响应您的请求。</p>
+            
             <p><strong>5. 跨境数据传输</strong><br>
             使用本服务即表示您知悉并同意您的个人信息可能被传输至您所在国家/地区以外的服务器。对于GDPR管辖的用户，跨境传输依据标准合同条款（SCCs）。</p>
+            
             <p><strong>6. 信息的共享与披露</strong><br>
-            我们不会出售您的信息。仅与Supabase等服务提供商共享必要数据，且受严格数据保护协议约束。</p>
+            我们不会出售或公开您的信息。仅与Supabase等服务提供商共享必要数据，且受严格数据保护协议约束。我们不会将您的数据用于任何未经您明确同意的用途。</p>
+            
             <p><strong>7. 您的权利</strong><br>
-            根据适用法律，您享有知情权、访问权、更正权、删除权、限制处理权、数据可携权、反对权、撤回同意权。如需行使权利，请联系 privacy@swimcalc.com。</p>
+            根据适用的数据保护法律（包括中国PIPL、欧盟GDPR、美国CCPA/CPRA、香港PDPO、新加坡PDPA），您享有知情权、访问权、更正权、删除权、限制处理权、数据可携权、反对权、撤回同意权。如需行使权利，请联系 privacy@swimcalc.com。</p>
+            
             <p><strong>8. 未成年人信息</strong><br>
             本服务不针对13岁以下未成年人。</p>
+            
             <p><strong>9. 数据安全事件响应</strong><br>
             如发生数据泄露，我们将及时通知用户并报告监管机构。</p>
+            
             <p><strong>10. 政策更新</strong><br>
             本政策至少每12个月更新一次，重大变更将公告通知。</p>
+            
             <p><strong>11. 联系我们</strong><br>
-            📧 privacy@swimcalc.com</p>
+            📧 电子邮件：privacy@swimcalc.com</p>
+            
             <h3>二、免责声明</h3>
             <p><strong>1. 工具性质</strong><br>本工具为非官方辅助训练参考工具，不替代世界泳联官方裁判判定。</p>
             <p><strong>2. 信息准确性</strong><br>基于世界泳联2025-2026规则，我们不保证信息的完整性、准确性或时效性。</p>
             <p><strong>3. 使用风险</strong><br>您使用本工具的风险完全由您自行承担，开发者不对任何损失或损害承担责任。</p>
             <p><strong>4. 不构成专业意见</strong><br>本工具不构成任何形式的专业意见。</p>
             <p><strong>5. 责任限制</strong><br>在法律允许的最大范围内，开发者不对任何损害承担责任。</p>
-            <p><strong>6. 第三方链接</strong><br>对第三方网站内容不承担任何责任。</p>
-            <p><strong>7. 适用法律与管辖</strong><br>适用开发者所在国家/地区法律，争议由开发者所在地法院管辖。</p>
-            <hr><p style="font-size:0.7rem;">如您继续使用本计算器，即表示您已阅读、理解并同意本隐私政策与免责声明的全部条款。</p>
+            <p><strong>6. 适用法律与管辖</strong><br>适用开发者所在国家/地区法律，争议由开发者所在地法院管辖。</p>
+            
+            <hr>
+            <p style="font-size:0.7rem; color:#666;">如您继续使用本计算器，即表示您已阅读、理解并同意本隐私政策与免责声明的全部条款。</p>
+            
             <button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">我同意</button>
             <button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">查看完整政策</button>`;
         } else {
             content.innerHTML = `
             <h2>Privacy Policy & Disclaimer</h2>
             <p><strong>Last Updated:</strong> June 16, 2026</p>
+            
             <h3>I. Privacy Policy</h3>
             <p><strong>1. Information We Collect:</strong> Routine data, calculation records, device information, usage data.</p>
-            <p><strong>2. Use of Information:</strong> Service improvement, security, legal compliance.</p>
-            <p><strong>3. Data Storage & Security:</strong> Encrypted transmission, access controls.</p>
-            <p><strong>4. Data Retention:</strong> As long as you use the service, you may request deletion.</p>
+            <p><strong>2. Use of Information:</strong> Your data is used <strong>exclusively for analytics and service improvement</strong>. We do not sell, share, or publicly disclose your data.</p>
+            <p><strong>3. Data Storage & Security:</strong> Encrypted transmission, access controls, regular security audits.</p>
+            <p><strong>4. Data Retention & Deletion:</strong> Data retained while you use the service. You may request deletion at any time via privacy@swimcalc.com.</p>
             <p><strong>5. Cross-Border Data Transfer:</strong> Your data may be transferred to servers outside your country.</p>
-            <p><strong>6. Sharing & Disclosure:</strong> We do not sell your data. Shared only with service providers under strict agreements.</p>
+            <p><strong>6. Sharing & Disclosure:</strong> We do not sell or share your data. Shared only with service providers under strict agreements.</p>
             <p><strong>7. Your Rights:</strong> Access, correction, deletion, restriction, portability, objection, withdrawal of consent.</p>
             <p><strong>8. Contact:</strong> privacy@swimcalc.com</p>
+            
             <h3>II. Disclaimer</h3>
             <p>This tool is for reference only. No warranty of accuracy. Use at your own risk. Developer not liable for any damages.</p>
+            
             <button id="consentAgreeBtn" style="margin-top:15px; background:#1e88e5;">I Agree</button>
             <button id="viewFullPolicyBtn" style="margin-top:15px; margin-left:10px;">View Full Policy</button>`;
         }
@@ -1067,14 +1139,40 @@
         const modal = document.getElementById('fullPolicyModal');
         const content = document.getElementById('fullPolicyContent');
         if (currentLang === 'zh') {
-            content.innerHTML = `<h3>完整隐私政策与免责声明</h3>
-            <p><strong>完整隐私政策</strong><br>本工具遵循中华人民共和国《个人信息保护法》、欧盟GDPR、美国加州CCPA/CPRA、香港PDPO、新加坡PDPA等法律。我们仅收集必要信息，用于服务改进。您有权访问、更正、删除您的数据。联系邮箱：privacy@swimcalc.com</p>
-            <p><strong>免责声明（完整版）</strong><br>本工具“按原样”提供，不附带任何明示或默示保证。规则可能变更，您有责任核对最新官方规则。在法律允许的最大范围内，开发者不对任何损害承担责任。</p>
+            content.innerHTML = `
+            <h3>完整隐私政策与免责声明</h3>
+            
+            <p><strong>数据保护承诺</strong><br>
+            本工具遵循中华人民共和国《个人信息保护法》、欧盟GDPR、美国加州CCPA/CPRA、香港PDPO、新加坡PDPA等法律。</p>
+            
+            <p><strong>数据使用范围</strong><br>
+            ✅ 您的数据仅用于内部数据分析和产品改进<br>
+            ✅ 不会对外公开、出售或向任何第三方披露<br>
+            ✅ 您有权随时要求删除您的数据</p>
+            
+            <p><strong>跨境数据传输声明</strong><br>
+            本工具使用Supabase云端服务（服务器位于海外）。使用本服务即表示您知悉并同意您的数据可能被传输至您所在国家/地区以外的服务器。对于受GDPR管辖的用户，跨境数据转移依据标准合同条款（SCCs）提供充分保护。</p>
+            
+            <p><strong>联系信息</strong><br>
+            📧 privacy@swimcalc.com</p>
+            
+            <p><strong>免责声明</strong><br>
+            本工具“按原样”提供，不附带任何明示或默示保证。规则可能变更，您有责任核对最新官方规则。在法律允许的最大范围内，开发者不对任何损害承担责任。</p>
+            
             <button onclick="closeFullModal()" style="margin-top:15px;">关闭</button>`;
         } else {
-            content.innerHTML = `<h3>Full Privacy Policy & Disclaimer</h3>
-            <p>We comply with PIPL, GDPR, CCPA/CPRA, PDPO, PDPA. We collect only necessary data. You have the right to access, correct, and delete your data. Contact: privacy@swimcalc.com</p>
-            <p>This tool is provided "as is" without warranties. Rules may change; you are responsible for verifying against official rules. To the fullest extent permitted by law, developer not liable for any damages.</p>
+            content.innerHTML = `
+            <h3>Full Privacy Policy & Disclaimer</h3>
+            <p><strong>Data Protection Commitment</strong><br>
+            We comply with PIPL, GDPR, CCPA/CPRA, PDPO, PDPA.</p>
+            <p><strong>Data Usage</strong><br>
+            ✅ Your data is used exclusively for analytics and service improvement<br>
+            ✅ We do not sell, share, or publicly disclose your data<br>
+            ✅ You have the right to request deletion at any time</p>
+            <p><strong>Cross-Border Data Transfer</strong><br>
+            Data may be transferred to servers outside your country. GDPR users: transfers are based on Standard Contractual Clauses (SCCs).</p>
+            <p><strong>Contact:</strong> privacy@swimcalc.com</p>
+            <p><strong>Disclaimer:</strong> This tool is provided "as is" without warranties. Use at your own risk. Developer not liable for any damages.</p>
             <button onclick="closeFullModal()" style="margin-top:15px;">Close</button>`;
         }
         modal.style.display = 'flex';
@@ -1084,12 +1182,20 @@
     function closePrivacyModal() { document.getElementById('privacyModal').style.display = 'none'; }
 
     function checkConsentAndCalculate() {
-        if (hasConsented) performCalculation();
-        else showPrivacyModal();
+        if (hasConsented) {
+            // 先检查必填字段，再计算
+            if (checkRequiredFields()) {
+                performCalculation();
+            }
+        } else {
+            showPrivacyModal();
+        }
     }
     
     function switchLang() {
         currentLang = currentLang === 'en' ? 'zh' : 'en';
+        updatePageTitle();
+        
         document.getElementById('langBtn').innerHTML = currentLang === 'en' ? 'EN' : '中文';
         document.getElementById('titleText').innerText = t('title');
         document.getElementById('subText').innerText = t('sub');
@@ -1110,16 +1216,17 @@
         document.getElementById('helpText4').innerHTML = t('helpText4');
         document.getElementById('helpText5').innerHTML = t('helpText5');
         document.getElementById('rulesRefText').innerHTML = `${t('rulesRef')} <a href="${RULES_REF.link}" target="_blank">${t('rulesLink')}</a>`;
-        document.getElementById('athleteLabel').innerHTML = t('athlete');
-        document.getElementById('eventLabel').innerHTML = t('event');
+        document.getElementById('athleteLabel').innerHTML = t('athlete') + ' <span class="required">*</span>';
+        document.getElementById('eventLabel').innerHTML = t('event') + ' <span class="required">*</span>';
+        document.getElementById('musicLabel').innerHTML = t('music') + ' <span class="required">*</span>';
         document.getElementById('categoryLabel').innerHTML = t('category');
         document.getElementById('themeLabel').innerHTML = t('theme');
-        document.getElementById('musicLabel').innerHTML = t('music');
         document.getElementById('notesLabel').innerHTML = t('notes');
         document.getElementById('preparedByLabel').innerHTML = t('preparedBy');
         document.getElementById('coachNameLabel').innerHTML = t('coachName');
         document.getElementById('disciplineLabel').innerHTML = t('discipline');
         document.getElementById('ageCategoryLabel').innerHTML = t('ageCategory');
+        document.getElementById('requiredHint').innerHTML = currentLang === 'zh' ? '（* 为必填）' : '（* required）';
         
         const exportBtn = document.querySelector('#exportLocalBtn');
         if (exportBtn) exportBtn.innerHTML = `📎 ${t('exportSubmit')}`;
@@ -1135,6 +1242,7 @@
         if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
             currentLang = savedLang;
             document.getElementById('languageModal').style.display = 'none';
+            updatePageTitle();
             buildApp();
         } else {
             document.getElementById('languageModal').style.display = 'flex';
@@ -1142,12 +1250,14 @@
                 currentLang = 'en';
                 localStorage.setItem('appLanguage', 'en');
                 document.getElementById('languageModal').style.display = 'none';
+                updatePageTitle();
                 buildApp();
             };
             document.getElementById('selectChinese').onclick = () => {
                 currentLang = 'zh';
                 localStorage.setItem('appLanguage', 'zh');
                 document.getElementById('languageModal').style.display = 'none';
+                updatePageTitle();
                 buildApp();
             };
         }
@@ -1166,7 +1276,7 @@
                     <button id="adminBtn" class="admin-dot" title="Admin Panel"></button>
                 </div>
             </div>
-            <div class="sub" id="subText">${t('sub')}</div>
+            <div class="sub" id="subText">${t('sub')} <span id="requiredHint" style="font-size:0.7rem; color:#dc3545;">（* 为必填）</span></div>
             <div class="help-text">
                 <strong id="helpTitle">${t('helpTitle')}</strong>
                 <ol>
@@ -1198,11 +1308,11 @@
                         <option value="12U">${t('age12U')}</option>
                     </select>
                 </div>
-                <div class="info-group"><label id="athleteLabel">${t('athlete')}</label><input id="athleteName"></div>
-                <div class="info-group"><label id="eventLabel">${t('event')}</label><input id="eventName"></div>
+                <div class="info-group"><label id="athleteLabel">${t('athlete')} <span class="required">*</span></label><input id="athleteName" placeholder="请输入运动员姓名"></div>
+                <div class="info-group"><label id="eventLabel">${t('event')} <span class="required">*</span></label><input id="eventName" placeholder="请输入比赛名称"></div>
                 <div class="info-group"><label id="categoryLabel">${t('category')}</label><input id="ageGroup"></div>
                 <div class="info-group"><label id="themeLabel">${t('theme')}</label><input id="theme"></div>
-                <div class="info-group"><label id="musicLabel">${t('music')}</label><input id="musicTitle"></div>
+                <div class="info-group"><label id="musicLabel">${t('music')} <span class="required">*</span></label><input id="musicTitle" placeholder="请输入音乐名称"></div>
                 <div class="info-group"><label id="notesLabel">${t('notes')}</label><textarea id="notes" rows="1"></textarea></div>
                 <div class="info-group"><label id="preparedByLabel">${t('preparedBy')}</label><input id="preparedBy"></div>
                 <div class="info-group"><label id="coachNameLabel">${t('coachName')}</label><input id="coachName"></div>
@@ -1280,6 +1390,18 @@
         document.getElementById('langBtn').addEventListener('click', switchLang);
         document.getElementById('adminBtn').addEventListener('click', showAdminPanel);
         document.getElementById('privacyLinkText').addEventListener('click', (e) => { e.preventDefault(); showFullPolicyModal(); });
+        
+        // 必填字段实时验证 - 输入时移除红色边框
+        ['athleteName', 'eventName', 'musicTitle'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    if (el.value.trim() !== '') {
+                        el.classList.remove('required-field');
+                    }
+                });
+            }
+        });
         
         renderHistory();
     }
